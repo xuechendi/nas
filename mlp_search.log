@@ -1,0 +1,3433 @@
+Raw data file = datasets/train.txt, processed data file = kaggleAdDisplayChallenge_processed
+LOADING PROCESSED DATA.
+Setting processed data file = kaggleAdDisplayChallenge_processed
+Set processed data file done at time = 1641270522.503634, args = {'search_space': 'top_bottom_mlps', 'embedding_dimension': 32, 'dimension_options': None, 'cardinality_options': None, 'feature_counts_file': None, 'embeddings_num_vectors': [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], 'num_dense_features': 13, 'bottom_mlp_layer_options': [128, 256, 512, 1024], 'max_bottom_mlp_layers': 5, 'top_mlp_layer_options': [128, 256, 512, 1024], 'max_top_mlp_layers': 5, 'op_list_path': None, 'cost_lut_path': None, 'arch_interaction_op': 'dot', 'arch_include_self_interaction': False, 'loss_threshold': 1e-09, 'dataset': 'kaggle', 'memory_map': True, 'no_click_subsample_rate': 0.0, 'overall_subsample_rate': 0.0, 'weights_training_proportion': 0.8, 'raw_data_file': 'datasets/train.txt', 'mem_map_weights_data_file': 'datasets/weights_kaggle_train_full/split', 'mem_map_arch_params_data_file': 'datasets/arch_params_kaggle_train_full/split', 'processed_data_file': 'kaggleAdDisplayChallenge_processed', 'load_processed': True, 'dataset_multiprocessing': False, 'data_randomization': 'total', 'category_dropping': 'modulo', 'use_random_sampler_weights_dataset': False, 'use_random_sampler_arch_params_dataset': False, 'weights_dataset_num_workers': 0, 'arch_params_dataset_num_workers': 0, 'experiment_id': 'save_file_mlp_search_criteo_kaggle_supernet_1_0', 'weights_batch_size': 1024, 'arch_params_batch_size': 1024, 'initial_temperature': 1.0, 'temp_decay_rate': 0.2, 'architecture_sampling': '4:4', 'n_warmup_epochs': 1.0, 'n_total_s_net_training_epochs': 5.0, 'n_alt_train_epochs': 1.0, 'host_gpu_id': 1, 'clip_grad_norm_value': 100.0, 'weights_optim_type': 'sgd', 'arch_params_optim_type': 'sgd', 'weights_lr': 1.0, 'arch_params_lr': 0.002, 'weights_wd': 0.0, 'arch_params_wd': 0.0, 'use_hw_cost': True, 'load_cost_table_data_path': '', 'hw_cost_function': 'linear', 'hw_cost_exp': None, 'hw_cost_coef': 0.0007, 'hw_cost_multiplier': 1.0, 'weights_lr_base': 0.9, 'arch_params_lr_base': 0.9, 'update_lrs_every_step': False, 'seed': 1, 'save_metrics_param': 'save_file_mlp_search_criteo_kaggle_supernet_1_0'}
+FETCHED num_vectors = [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], max_ind_range = 20000.
+Load processed = True
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+ATTEMPTING TO MOVE DLRM SUPERNET TO GPU cpu.
+DLRMSuperNet(
+  (emb_l): ModuleList(
+    (0): EmbeddingBag(20000, 32, mode=sum)
+    (1): EmbeddingBag(20000, 32, mode=sum)
+    (2): EmbeddingBag(20000, 32, mode=sum)
+    (3): EmbeddingBag(20000, 32, mode=sum)
+    (4): EmbeddingBag(20000, 32, mode=sum)
+    (5): EmbeddingBag(20000, 32, mode=sum)
+    (6): EmbeddingBag(20000, 32, mode=sum)
+    (7): EmbeddingBag(20000, 32, mode=sum)
+    (8): EmbeddingBag(20000, 32, mode=sum)
+    (9): EmbeddingBag(20000, 32, mode=sum)
+    (10): EmbeddingBag(20000, 32, mode=sum)
+    (11): EmbeddingBag(20000, 32, mode=sum)
+    (12): EmbeddingBag(20000, 32, mode=sum)
+    (13): EmbeddingBag(20000, 32, mode=sum)
+    (14): EmbeddingBag(20000, 32, mode=sum)
+    (15): EmbeddingBag(20000, 32, mode=sum)
+    (16): EmbeddingBag(20000, 32, mode=sum)
+    (17): EmbeddingBag(20000, 32, mode=sum)
+    (18): EmbeddingBag(20000, 32, mode=sum)
+    (19): EmbeddingBag(20000, 32, mode=sum)
+    (20): EmbeddingBag(20000, 32, mode=sum)
+    (21): EmbeddingBag(20000, 32, mode=sum)
+    (22): EmbeddingBag(20000, 32, mode=sum)
+    (23): EmbeddingBag(20000, 32, mode=sum)
+    (24): EmbeddingBag(20000, 32, mode=sum)
+    (25): EmbeddingBag(20000, 32, mode=sum)
+  )
+  (bot_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=32, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=32, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=32, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=32, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (top_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (theta_parameters): ParameterList(
+      (0): Parameter containing: [torch.FloatTensor of size 1]
+      (1): Parameter containing: [torch.FloatTensor of size 1]
+      (2): Parameter containing: [torch.FloatTensor of size 1]
+      (3): Parameter containing: [torch.FloatTensor of size 1]
+      (4): Parameter containing: [torch.FloatTensor of size 5]
+      (5): Parameter containing: [torch.FloatTensor of size 5]
+      (6): Parameter containing: [torch.FloatTensor of size 5]
+      (7): Parameter containing: [torch.FloatTensor of size 5]
+      (8): Parameter containing: [torch.FloatTensor of size 5]
+      (9): Parameter containing: [torch.FloatTensor of size 5]
+      (10): Parameter containing: [torch.FloatTensor of size 5]
+      (11): Parameter containing: [torch.FloatTensor of size 5]
+      (12): Parameter containing: [torch.FloatTensor of size 5]
+      (13): Parameter containing: [torch.FloatTensor of size 5]
+      (14): Parameter containing: [torch.FloatTensor of size 5]
+      (15): Parameter containing: [torch.FloatTensor of size 5]
+      (16): Parameter containing: [torch.FloatTensor of size 4]
+      (17): Parameter containing: [torch.FloatTensor of size 1]
+      (18): Parameter containing: [torch.FloatTensor of size 1]
+      (19): Parameter containing: [torch.FloatTensor of size 1]
+      (20): Parameter containing: [torch.FloatTensor of size 1]
+      (21): Parameter containing: [torch.FloatTensor of size 5]
+      (22): Parameter containing: [torch.FloatTensor of size 5]
+      (23): Parameter containing: [torch.FloatTensor of size 5]
+      (24): Parameter containing: [torch.FloatTensor of size 5]
+      (25): Parameter containing: [torch.FloatTensor of size 5]
+      (26): Parameter containing: [torch.FloatTensor of size 5]
+      (27): Parameter containing: [torch.FloatTensor of size 5]
+      (28): Parameter containing: [torch.FloatTensor of size 5]
+      (29): Parameter containing: [torch.FloatTensor of size 5]
+      (30): Parameter containing: [torch.FloatTensor of size 5]
+      (31): Parameter containing: [torch.FloatTensor of size 5]
+      (32): Parameter containing: [torch.FloatTensor of size 5]
+      (33): Parameter containing: [torch.FloatTensor of size 4]
+  )
+)Raw data file = datasets/train.txt, processed data file = kaggleAdDisplayChallenge_processed
+LOADING PROCESSED DATA.
+Setting processed data file = kaggleAdDisplayChallenge_processed
+Set processed data file done at time = 1641270522.9986157, args = {'search_space': 'top_bottom_mlps', 'embedding_dimension': 32, 'dimension_options': None, 'cardinality_options': None, 'feature_counts_file': None, 'embeddings_num_vectors': [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], 'num_dense_features': 13, 'bottom_mlp_layer_options': [128, 256, 512, 1024], 'max_bottom_mlp_layers': 5, 'top_mlp_layer_options': [128, 256, 512, 1024], 'max_top_mlp_layers': 5, 'op_list_path': None, 'cost_lut_path': None, 'arch_interaction_op': 'dot', 'arch_include_self_interaction': False, 'loss_threshold': 1e-09, 'dataset': 'kaggle', 'memory_map': True, 'no_click_subsample_rate': 0.0, 'overall_subsample_rate': 0.0, 'weights_training_proportion': 0.8, 'raw_data_file': 'datasets/train.txt', 'mem_map_weights_data_file': 'datasets/weights_kaggle_train_full/split', 'mem_map_arch_params_data_file': 'datasets/arch_params_kaggle_train_full/split', 'processed_data_file': 'kaggleAdDisplayChallenge_processed', 'load_processed': True, 'dataset_multiprocessing': False, 'data_randomization': 'total', 'category_dropping': 'modulo', 'use_random_sampler_weights_dataset': False, 'use_random_sampler_arch_params_dataset': False, 'weights_dataset_num_workers': 0, 'arch_params_dataset_num_workers': 0, 'experiment_id': 'save_file_mlp_search_criteo_kaggle_supernet_1_2', 'weights_batch_size': 1024, 'arch_params_batch_size': 1024, 'initial_temperature': 1.0, 'temp_decay_rate': 0.2, 'architecture_sampling': '4:4', 'n_warmup_epochs': 1.0, 'n_total_s_net_training_epochs': 5.0, 'n_alt_train_epochs': 1.0, 'host_gpu_id': 5, 'clip_grad_norm_value': 100.0, 'weights_optim_type': 'sgd', 'arch_params_optim_type': 'sgd', 'weights_lr': 2.0, 'arch_params_lr': 0.002, 'weights_wd': 0.0, 'arch_params_wd': 0.0, 'use_hw_cost': True, 'load_cost_table_data_path': '', 'hw_cost_function': 'linear', 'hw_cost_exp': None, 'hw_cost_coef': 0.0007, 'hw_cost_multiplier': 1.0, 'weights_lr_base': 0.9, 'arch_params_lr_base': 0.9, 'update_lrs_every_step': False, 'seed': 1, 'save_metrics_param': 'save_file_mlp_search_criteo_kaggle_supernet_1_2'}
+FETCHED num_vectors = [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], max_ind_range = 20000.
+Load processed = True
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+ATTEMPTING TO MOVE DLRM SUPERNET TO GPU cpu.
+DLRMSuperNet(
+  (emb_l): ModuleList(
+    (0): EmbeddingBag(20000, 32, mode=sum)
+    (1): EmbeddingBag(20000, 32, mode=sum)
+    (2): EmbeddingBag(20000, 32, mode=sum)
+    (3): EmbeddingBag(20000, 32, mode=sum)
+    (4): EmbeddingBag(20000, 32, mode=sum)
+    (5): EmbeddingBag(20000, 32, mode=sum)
+    (6): EmbeddingBag(20000, 32, mode=sum)
+    (7): EmbeddingBag(20000, 32, mode=sum)
+    (8): EmbeddingBag(20000, 32, mode=sum)
+    (9): EmbeddingBag(20000, 32, mode=sum)
+    (10): EmbeddingBag(20000, 32, mode=sum)
+    (11): EmbeddingBag(20000, 32, mode=sum)
+    (12): EmbeddingBag(20000, 32, mode=sum)
+    (13): EmbeddingBag(20000, 32, mode=sum)
+    (14): EmbeddingBag(20000, 32, mode=sum)
+    (15): EmbeddingBag(20000, 32, mode=sum)
+    (16): EmbeddingBag(20000, 32, mode=sum)
+    (17): EmbeddingBag(20000, 32, mode=sum)
+    (18): EmbeddingBag(20000, 32, mode=sum)
+    (19): EmbeddingBag(20000, 32, mode=sum)
+    (20): EmbeddingBag(20000, 32, mode=sum)
+    (21): EmbeddingBag(20000, 32, mode=sum)
+    (22): EmbeddingBag(20000, 32, mode=sum)
+    (23): EmbeddingBag(20000, 32, mode=sum)
+    (24): EmbeddingBag(20000, 32, mode=sum)
+    (25): EmbeddingBag(20000, 32, mode=sum)
+  )
+  (bot_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=32, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=32, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=32, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=32, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (top_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (theta_parameters): ParameterList(
+      (0): Parameter containing: [torch.FloatTensor of size 1]
+      (1): Parameter containing: [torch.FloatTensor of size 1]
+      (2): Parameter containing: [torch.FloatTensor of size 1]
+      (3): Parameter containing: [torch.FloatTensor of size 1]
+      (4): Parameter containing: [torch.FloatTensor of size 5]
+      (5): Parameter containing: [torch.FloatTensor of size 5]
+      (6): Parameter containing: [torch.FloatTensor of size 5]
+      (7): Parameter containing: [torch.FloatTensor of size 5]
+      (8): Parameter containing: [torch.FloatTensor of size 5]
+      (9): Parameter containing: [torch.FloatTensor of size 5]
+      (10): Parameter containing: [torch.FloatTensor of size 5]
+      (11): Parameter containing: [torch.FloatTensor of size 5]
+      (12): Parameter containing: [torch.FloatTensor of size 5]
+      (13): Parameter containing: [torch.FloatTensor of size 5]
+      (14): Parameter containing: [torch.FloatTensor of size 5]
+      (15): Parameter containing: [torch.FloatTensor of size 5]
+      (16): Parameter containing: [torch.FloatTensor of size 4]
+      (17): Parameter containing: [torch.FloatTensor of size 1]
+      (18): Parameter containing: [torch.FloatTensor of size 1]
+      (19): Parameter containing: [torch.FloatTensor of size 1]
+      (20): Parameter containing: [torch.FloatTensor of size 1]
+      (21): Parameter containing: [torch.FloatTensor of size 5]
+      (22): Parameter containing: [torch.FloatTensor of size 5]
+      (23): Parameter containing: [torch.FloatTensor of size 5]
+      (24): Parameter containing: [torch.FloatTensor of size 5]
+      (25): Parameter containing: [torch.FloatTensor of size 5]
+      (26): Parameter containing: [torch.FloatTensor of size 5]
+      (27): Parameter containing: [torch.FloatTensor of size 5]
+      (28): Parameter containing: [torch.FloatTensor of size 5]
+      (29): Parameter containing: [torch.FloatTensor of size 5]
+      (30): Parameter containing: [torch.FloatTensor of size 5]
+      (31): Parameter containing: [torch.FloatTensor of size 5]
+      (32): Parameter containing: [torch.FloatTensor of size 5]
+      (33): Parameter containing: [torch.FloatTensor of size 4]
+  )
+)Raw data file = datasets/train.txt, processed data file = kaggleAdDisplayChallenge_processed
+LOADING PROCESSED DATA.
+Setting processed data file = kaggleAdDisplayChallenge_processed
+Set processed data file done at time = 1641270523.0329118, args = {'search_space': 'top_bottom_mlps', 'embedding_dimension': 32, 'dimension_options': None, 'cardinality_options': None, 'feature_counts_file': None, 'embeddings_num_vectors': [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], 'num_dense_features': 13, 'bottom_mlp_layer_options': [128, 256, 512, 1024], 'max_bottom_mlp_layers': 5, 'top_mlp_layer_options': [128, 256, 512, 1024], 'max_top_mlp_layers': 5, 'op_list_path': None, 'cost_lut_path': None, 'arch_interaction_op': 'dot', 'arch_include_self_interaction': False, 'loss_threshold': 1e-09, 'dataset': 'kaggle', 'memory_map': True, 'no_click_subsample_rate': 0.0, 'overall_subsample_rate': 0.0, 'weights_training_proportion': 0.8, 'raw_data_file': 'datasets/train.txt', 'mem_map_weights_data_file': 'datasets/weights_kaggle_train_full/split', 'mem_map_arch_params_data_file': 'datasets/arch_params_kaggle_train_full/split', 'processed_data_file': 'kaggleAdDisplayChallenge_processed', 'load_processed': True, 'dataset_multiprocessing': False, 'data_randomization': 'total', 'category_dropping': 'modulo', 'use_random_sampler_weights_dataset': False, 'use_random_sampler_arch_params_dataset': False, 'weights_dataset_num_workers': 0, 'arch_params_dataset_num_workers': 0, 'experiment_id': 'save_file_mlp_search_criteo_kaggle_supernet_0_0', 'weights_batch_size': 1024, 'arch_params_batch_size': 1024, 'initial_temperature': 1.0, 'temp_decay_rate': 0.1, 'architecture_sampling': '4:4', 'n_warmup_epochs': 1.0, 'n_total_s_net_training_epochs': 5.0, 'n_alt_train_epochs': 1.0, 'host_gpu_id': 0, 'clip_grad_norm_value': 100.0, 'weights_optim_type': 'sgd', 'arch_params_optim_type': 'sgd', 'weights_lr': 1.0, 'arch_params_lr': 0.002, 'weights_wd': 0.0, 'arch_params_wd': 0.0, 'use_hw_cost': True, 'load_cost_table_data_path': '', 'hw_cost_function': 'linear', 'hw_cost_exp': None, 'hw_cost_coef': 0.0007, 'hw_cost_multiplier': 1.0, 'weights_lr_base': 0.9, 'arch_params_lr_base': 0.9, 'update_lrs_every_step': False, 'seed': 1, 'save_metrics_param': 'save_file_mlp_search_criteo_kaggle_supernet_0_0'}
+FETCHED num_vectors = [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], max_ind_range = 20000.
+Load processed = True
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+ATTEMPTING TO MOVE DLRM SUPERNET TO GPU cpu.
+DLRMSuperNet(
+  (emb_l): ModuleList(
+    (0): EmbeddingBag(20000, 32, mode=sum)
+    (1): EmbeddingBag(20000, 32, mode=sum)
+    (2): EmbeddingBag(20000, 32, mode=sum)
+    (3): EmbeddingBag(20000, 32, mode=sum)
+    (4): EmbeddingBag(20000, 32, mode=sum)
+    (5): EmbeddingBag(20000, 32, mode=sum)
+    (6): EmbeddingBag(20000, 32, mode=sum)
+    (7): EmbeddingBag(20000, 32, mode=sum)
+    (8): EmbeddingBag(20000, 32, mode=sum)
+    (9): EmbeddingBag(20000, 32, mode=sum)
+    (10): EmbeddingBag(20000, 32, mode=sum)
+    (11): EmbeddingBag(20000, 32, mode=sum)
+    (12): EmbeddingBag(20000, 32, mode=sum)
+    (13): EmbeddingBag(20000, 32, mode=sum)
+    (14): EmbeddingBag(20000, 32, mode=sum)
+    (15): EmbeddingBag(20000, 32, mode=sum)
+    (16): EmbeddingBag(20000, 32, mode=sum)
+    (17): EmbeddingBag(20000, 32, mode=sum)
+    (18): EmbeddingBag(20000, 32, mode=sum)
+    (19): EmbeddingBag(20000, 32, mode=sum)
+    (20): EmbeddingBag(20000, 32, mode=sum)
+    (21): EmbeddingBag(20000, 32, mode=sum)
+    (22): EmbeddingBag(20000, 32, mode=sum)
+    (23): EmbeddingBag(20000, 32, mode=sum)
+    (24): EmbeddingBag(20000, 32, mode=sum)
+    (25): EmbeddingBag(20000, 32, mode=sum)
+  )
+  (bot_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=32, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=32, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=32, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=32, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (top_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (theta_parameters): ParameterList(
+      (0): Parameter containing: [torch.FloatTensor of size 1]
+      (1): Parameter containing: [torch.FloatTensor of size 1]
+      (2): Parameter containing: [torch.FloatTensor of size 1]
+      (3): Parameter containing: [torch.FloatTensor of size 1]
+      (4): Parameter containing: [torch.FloatTensor of size 5]
+      (5): Parameter containing: [torch.FloatTensor of size 5]
+      (6): Parameter containing: [torch.FloatTensor of size 5]
+      (7): Parameter containing: [torch.FloatTensor of size 5]
+      (8): Parameter containing: [torch.FloatTensor of size 5]
+      (9): Parameter containing: [torch.FloatTensor of size 5]
+      (10): Parameter containing: [torch.FloatTensor of size 5]
+      (11): Parameter containing: [torch.FloatTensor of size 5]
+      (12): Parameter containing: [torch.FloatTensor of size 5]
+      (13): Parameter containing: [torch.FloatTensor of size 5]
+      (14): Parameter containing: [torch.FloatTensor of size 5]
+      (15): Parameter containing: [torch.FloatTensor of size 5]
+      (16): Parameter containing: [torch.FloatTensor of size 4]
+      (17): Parameter containing: [torch.FloatTensor of size 1]
+      (18): Parameter containing: [torch.FloatTensor of size 1]
+      (19): Parameter containing: [torch.FloatTensor of size 1]
+      (20): Parameter containing: [torch.FloatTensor of size 1]
+      (21): Parameter containing: [torch.FloatTensor of size 5]
+      (22): Parameter containing: [torch.FloatTensor of size 5]
+      (23): Parameter containing: [torch.FloatTensor of size 5]
+      (24): Parameter containing: [torch.FloatTensor of size 5]
+      (25): Parameter containing: [torch.FloatTensor of size 5]
+      (26): Parameter containing: [torch.FloatTensor of size 5]
+      (27): Parameter containing: [torch.FloatTensor of size 5]
+      (28): Parameter containing: [torch.FloatTensor of size 5]
+      (29): Parameter containing: [torch.FloatTensor of size 5]
+      (30): Parameter containing: [torch.FloatTensor of size 5]
+      (31): Parameter containing: [torch.FloatTensor of size 5]
+      (32): Parameter containing: [torch.FloatTensor of size 5]
+      (33): Parameter containing: [torch.FloatTensor of size 4]
+  )
+)Raw data file = datasets/train.txt, processed data file = kaggleAdDisplayChallenge_processed
+LOADING PROCESSED DATA.
+Setting processed data file = kaggleAdDisplayChallenge_processed
+Set processed data file done at time = 1641270523.1387913, args = {'search_space': 'top_bottom_mlps', 'embedding_dimension': 32, 'dimension_options': None, 'cardinality_options': None, 'feature_counts_file': None, 'embeddings_num_vectors': [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], 'num_dense_features': 13, 'bottom_mlp_layer_options': [128, 256, 512, 1024], 'max_bottom_mlp_layers': 5, 'top_mlp_layer_options': [128, 256, 512, 1024], 'max_top_mlp_layers': 5, 'op_list_path': None, 'cost_lut_path': None, 'arch_interaction_op': 'dot', 'arch_include_self_interaction': False, 'loss_threshold': 1e-09, 'dataset': 'kaggle', 'memory_map': True, 'no_click_subsample_rate': 0.0, 'overall_subsample_rate': 0.0, 'weights_training_proportion': 0.8, 'raw_data_file': 'datasets/train.txt', 'mem_map_weights_data_file': 'datasets/weights_kaggle_train_full/split', 'mem_map_arch_params_data_file': 'datasets/arch_params_kaggle_train_full/split', 'processed_data_file': 'kaggleAdDisplayChallenge_processed', 'load_processed': True, 'dataset_multiprocessing': False, 'data_randomization': 'total', 'category_dropping': 'modulo', 'use_random_sampler_weights_dataset': False, 'use_random_sampler_arch_params_dataset': False, 'weights_dataset_num_workers': 0, 'arch_params_dataset_num_workers': 0, 'experiment_id': 'save_file_mlp_search_criteo_kaggle_supernet_0_1', 'weights_batch_size': 1024, 'arch_params_batch_size': 1024, 'initial_temperature': 1.0, 'temp_decay_rate': 0.1, 'architecture_sampling': '4:4', 'n_warmup_epochs': 1.0, 'n_total_s_net_training_epochs': 5.0, 'n_alt_train_epochs': 1.0, 'host_gpu_id': 2, 'clip_grad_norm_value': 100.0, 'weights_optim_type': 'sgd', 'arch_params_optim_type': 'sgd', 'weights_lr': 1.5, 'arch_params_lr': 0.002, 'weights_wd': 0.0, 'arch_params_wd': 0.0, 'use_hw_cost': True, 'load_cost_table_data_path': '', 'hw_cost_function': 'linear', 'hw_cost_exp': None, 'hw_cost_coef': 0.0007, 'hw_cost_multiplier': 1.0, 'weights_lr_base': 0.9, 'arch_params_lr_base': 0.9, 'update_lrs_every_step': False, 'seed': 1, 'save_metrics_param': 'save_file_mlp_search_criteo_kaggle_supernet_0_1'}
+FETCHED num_vectors = [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], max_ind_range = 20000.
+Load processed = True
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+ATTEMPTING TO MOVE DLRM SUPERNET TO GPU cpu.
+DLRMSuperNet(
+  (emb_l): ModuleList(
+    (0): EmbeddingBag(20000, 32, mode=sum)
+    (1): EmbeddingBag(20000, 32, mode=sum)
+    (2): EmbeddingBag(20000, 32, mode=sum)
+    (3): EmbeddingBag(20000, 32, mode=sum)
+    (4): EmbeddingBag(20000, 32, mode=sum)
+    (5): EmbeddingBag(20000, 32, mode=sum)
+    (6): EmbeddingBag(20000, 32, mode=sum)
+    (7): EmbeddingBag(20000, 32, mode=sum)
+    (8): EmbeddingBag(20000, 32, mode=sum)
+    (9): EmbeddingBag(20000, 32, mode=sum)
+    (10): EmbeddingBag(20000, 32, mode=sum)
+    (11): EmbeddingBag(20000, 32, mode=sum)
+    (12): EmbeddingBag(20000, 32, mode=sum)
+    (13): EmbeddingBag(20000, 32, mode=sum)
+    (14): EmbeddingBag(20000, 32, mode=sum)
+    (15): EmbeddingBag(20000, 32, mode=sum)
+    (16): EmbeddingBag(20000, 32, mode=sum)
+    (17): EmbeddingBag(20000, 32, mode=sum)
+    (18): EmbeddingBag(20000, 32, mode=sum)
+    (19): EmbeddingBag(20000, 32, mode=sum)
+    (20): EmbeddingBag(20000, 32, mode=sum)
+    (21): EmbeddingBag(20000, 32, mode=sum)
+    (22): EmbeddingBag(20000, 32, mode=sum)
+    (23): EmbeddingBag(20000, 32, mode=sum)
+    (24): EmbeddingBag(20000, 32, mode=sum)
+    (25): EmbeddingBag(20000, 32, mode=sum)
+  )
+  (bot_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=32, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=32, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=32, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=32, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (top_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (theta_parameters): ParameterList(
+      (0): Parameter containing: [torch.FloatTensor of size 1]
+      (1): Parameter containing: [torch.FloatTensor of size 1]
+      (2): Parameter containing: [torch.FloatTensor of size 1]
+      (3): Parameter containing: [torch.FloatTensor of size 1]
+      (4): Parameter containing: [torch.FloatTensor of size 5]
+      (5): Parameter containing: [torch.FloatTensor of size 5]
+      (6): Parameter containing: [torch.FloatTensor of size 5]
+      (7): Parameter containing: [torch.FloatTensor of size 5]
+      (8): Parameter containing: [torch.FloatTensor of size 5]
+      (9): Parameter containing: [torch.FloatTensor of size 5]
+      (10): Parameter containing: [torch.FloatTensor of size 5]
+      (11): Parameter containing: [torch.FloatTensor of size 5]
+      (12): Parameter containing: [torch.FloatTensor of size 5]
+      (13): Parameter containing: [torch.FloatTensor of size 5]
+      (14): Parameter containing: [torch.FloatTensor of size 5]
+      (15): Parameter containing: [torch.FloatTensor of size 5]
+      (16): Parameter containing: [torch.FloatTensor of size 4]
+      (17): Parameter containing: [torch.FloatTensor of size 1]
+      (18): Parameter containing: [torch.FloatTensor of size 1]
+      (19): Parameter containing: [torch.FloatTensor of size 1]
+      (20): Parameter containing: [torch.FloatTensor of size 1]
+      (21): Parameter containing: [torch.FloatTensor of size 5]
+      (22): Parameter containing: [torch.FloatTensor of size 5]
+      (23): Parameter containing: [torch.FloatTensor of size 5]
+      (24): Parameter containing: [torch.FloatTensor of size 5]
+      (25): Parameter containing: [torch.FloatTensor of size 5]
+      (26): Parameter containing: [torch.FloatTensor of size 5]
+      (27): Parameter containing: [torch.FloatTensor of size 5]
+      (28): Parameter containing: [torch.FloatTensor of size 5]
+      (29): Parameter containing: [torch.FloatTensor of size 5]
+      (30): Parameter containing: [torch.FloatTensor of size 5]
+      (31): Parameter containing: [torch.FloatTensor of size 5]
+      (32): Parameter containing: [torch.FloatTensor of size 5]
+      (33): Parameter containing: [torch.FloatTensor of size 4]
+  )
+)Raw data file = datasets/train.txt, processed data file = kaggleAdDisplayChallenge_processed
+LOADING PROCESSED DATA.
+Setting processed data file = kaggleAdDisplayChallenge_processed
+Set processed data file done at time = 1641270523.1661255, args = {'search_space': 'top_bottom_mlps', 'embedding_dimension': 32, 'dimension_options': None, 'cardinality_options': None, 'feature_counts_file': None, 'embeddings_num_vectors': [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], 'num_dense_features': 13, 'bottom_mlp_layer_options': [128, 256, 512, 1024], 'max_bottom_mlp_layers': 5, 'top_mlp_layer_options': [128, 256, 512, 1024], 'max_top_mlp_layers': 5, 'op_list_path': None, 'cost_lut_path': None, 'arch_interaction_op': 'dot', 'arch_include_self_interaction': False, 'loss_threshold': 1e-09, 'dataset': 'kaggle', 'memory_map': True, 'no_click_subsample_rate': 0.0, 'overall_subsample_rate': 0.0, 'weights_training_proportion': 0.8, 'raw_data_file': 'datasets/train.txt', 'mem_map_weights_data_file': 'datasets/weights_kaggle_train_full/split', 'mem_map_arch_params_data_file': 'datasets/arch_params_kaggle_train_full/split', 'processed_data_file': 'kaggleAdDisplayChallenge_processed', 'load_processed': True, 'dataset_multiprocessing': False, 'data_randomization': 'total', 'category_dropping': 'modulo', 'use_random_sampler_weights_dataset': False, 'use_random_sampler_arch_params_dataset': False, 'weights_dataset_num_workers': 0, 'arch_params_dataset_num_workers': 0, 'experiment_id': 'save_file_mlp_search_criteo_kaggle_supernet_0_2', 'weights_batch_size': 1024, 'arch_params_batch_size': 1024, 'initial_temperature': 1.0, 'temp_decay_rate': 0.1, 'architecture_sampling': '4:4', 'n_warmup_epochs': 1.0, 'n_total_s_net_training_epochs': 5.0, 'n_alt_train_epochs': 1.0, 'host_gpu_id': 4, 'clip_grad_norm_value': 100.0, 'weights_optim_type': 'sgd', 'arch_params_optim_type': 'sgd', 'weights_lr': 2.0, 'arch_params_lr': 0.002, 'weights_wd': 0.0, 'arch_params_wd': 0.0, 'use_hw_cost': True, 'load_cost_table_data_path': '', 'hw_cost_function': 'linear', 'hw_cost_exp': None, 'hw_cost_coef': 0.0007, 'hw_cost_multiplier': 1.0, 'weights_lr_base': 0.9, 'arch_params_lr_base': 0.9, 'update_lrs_every_step': False, 'seed': 1, 'save_metrics_param': 'save_file_mlp_search_criteo_kaggle_supernet_0_2'}
+FETCHED num_vectors = [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], max_ind_range = 20000.
+Load processed = True
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+ATTEMPTING TO MOVE DLRM SUPERNET TO GPU cpu.
+DLRMSuperNet(
+  (emb_l): ModuleList(
+    (0): EmbeddingBag(20000, 32, mode=sum)
+    (1): EmbeddingBag(20000, 32, mode=sum)
+    (2): EmbeddingBag(20000, 32, mode=sum)
+    (3): EmbeddingBag(20000, 32, mode=sum)
+    (4): EmbeddingBag(20000, 32, mode=sum)
+    (5): EmbeddingBag(20000, 32, mode=sum)
+    (6): EmbeddingBag(20000, 32, mode=sum)
+    (7): EmbeddingBag(20000, 32, mode=sum)
+    (8): EmbeddingBag(20000, 32, mode=sum)
+    (9): EmbeddingBag(20000, 32, mode=sum)
+    (10): EmbeddingBag(20000, 32, mode=sum)
+    (11): EmbeddingBag(20000, 32, mode=sum)
+    (12): EmbeddingBag(20000, 32, mode=sum)
+    (13): EmbeddingBag(20000, 32, mode=sum)
+    (14): EmbeddingBag(20000, 32, mode=sum)
+    (15): EmbeddingBag(20000, 32, mode=sum)
+    (16): EmbeddingBag(20000, 32, mode=sum)
+    (17): EmbeddingBag(20000, 32, mode=sum)
+    (18): EmbeddingBag(20000, 32, mode=sum)
+    (19): EmbeddingBag(20000, 32, mode=sum)
+    (20): EmbeddingBag(20000, 32, mode=sum)
+    (21): EmbeddingBag(20000, 32, mode=sum)
+    (22): EmbeddingBag(20000, 32, mode=sum)
+    (23): EmbeddingBag(20000, 32, mode=sum)
+    (24): EmbeddingBag(20000, 32, mode=sum)
+    (25): EmbeddingBag(20000, 32, mode=sum)
+  )
+  (bot_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=32, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=32, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=32, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=32, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (top_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (theta_parameters): ParameterList(
+      (0): Parameter containing: [torch.FloatTensor of size 1]
+      (1): Parameter containing: [torch.FloatTensor of size 1]
+      (2): Parameter containing: [torch.FloatTensor of size 1]
+      (3): Parameter containing: [torch.FloatTensor of size 1]
+      (4): Parameter containing: [torch.FloatTensor of size 5]
+      (5): Parameter containing: [torch.FloatTensor of size 5]
+      (6): Parameter containing: [torch.FloatTensor of size 5]
+      (7): Parameter containing: [torch.FloatTensor of size 5]
+      (8): Parameter containing: [torch.FloatTensor of size 5]
+      (9): Parameter containing: [torch.FloatTensor of size 5]
+      (10): Parameter containing: [torch.FloatTensor of size 5]
+      (11): Parameter containing: [torch.FloatTensor of size 5]
+      (12): Parameter containing: [torch.FloatTensor of size 5]
+      (13): Parameter containing: [torch.FloatTensor of size 5]
+      (14): Parameter containing: [torch.FloatTensor of size 5]
+      (15): Parameter containing: [torch.FloatTensor of size 5]
+      (16): Parameter containing: [torch.FloatTensor of size 4]
+      (17): Parameter containing: [torch.FloatTensor of size 1]
+      (18): Parameter containing: [torch.FloatTensor of size 1]
+      (19): Parameter containing: [torch.FloatTensor of size 1]
+      (20): Parameter containing: [torch.FloatTensor of size 1]
+      (21): Parameter containing: [torch.FloatTensor of size 5]
+      (22): Parameter containing: [torch.FloatTensor of size 5]
+      (23): Parameter containing: [torch.FloatTensor of size 5]
+      (24): Parameter containing: [torch.FloatTensor of size 5]
+      (25): Parameter containing: [torch.FloatTensor of size 5]
+      (26): Parameter containing: [torch.FloatTensor of size 5]
+      (27): Parameter containing: [torch.FloatTensor of size 5]
+      (28): Parameter containing: [torch.FloatTensor of size 5]
+      (29): Parameter containing: [torch.FloatTensor of size 5]
+      (30): Parameter containing: [torch.FloatTensor of size 5]
+      (31): Parameter containing: [torch.FloatTensor of size 5]
+      (32): Parameter containing: [torch.FloatTensor of size 5]
+      (33): Parameter containing: [torch.FloatTensor of size 4]
+  )
+)Raw data file = datasets/train.txt, processed data file = kaggleAdDisplayChallenge_processed
+LOADING PROCESSED DATA.
+Setting processed data file = kaggleAdDisplayChallenge_processed
+Set processed data file done at time = 1641270523.2296689, args = {'search_space': 'top_bottom_mlps', 'embedding_dimension': 32, 'dimension_options': None, 'cardinality_options': None, 'feature_counts_file': None, 'embeddings_num_vectors': [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], 'num_dense_features': 13, 'bottom_mlp_layer_options': [128, 256, 512, 1024], 'max_bottom_mlp_layers': 5, 'top_mlp_layer_options': [128, 256, 512, 1024], 'max_top_mlp_layers': 5, 'op_list_path': None, 'cost_lut_path': None, 'arch_interaction_op': 'dot', 'arch_include_self_interaction': False, 'loss_threshold': 1e-09, 'dataset': 'kaggle', 'memory_map': True, 'no_click_subsample_rate': 0.0, 'overall_subsample_rate': 0.0, 'weights_training_proportion': 0.8, 'raw_data_file': 'datasets/train.txt', 'mem_map_weights_data_file': 'datasets/weights_kaggle_train_full/split', 'mem_map_arch_params_data_file': 'datasets/arch_params_kaggle_train_full/split', 'processed_data_file': 'kaggleAdDisplayChallenge_processed', 'load_processed': True, 'dataset_multiprocessing': False, 'data_randomization': 'total', 'category_dropping': 'modulo', 'use_random_sampler_weights_dataset': False, 'use_random_sampler_arch_params_dataset': False, 'weights_dataset_num_workers': 0, 'arch_params_dataset_num_workers': 0, 'experiment_id': 'save_file_mlp_search_criteo_kaggle_supernet_1_1', 'weights_batch_size': 1024, 'arch_params_batch_size': 1024, 'initial_temperature': 1.0, 'temp_decay_rate': 0.2, 'architecture_sampling': '4:4', 'n_warmup_epochs': 1.0, 'n_total_s_net_training_epochs': 5.0, 'n_alt_train_epochs': 1.0, 'host_gpu_id': 3, 'clip_grad_norm_value': 100.0, 'weights_optim_type': 'sgd', 'arch_params_optim_type': 'sgd', 'weights_lr': 1.5, 'arch_params_lr': 0.002, 'weights_wd': 0.0, 'arch_params_wd': 0.0, 'use_hw_cost': True, 'load_cost_table_data_path': '', 'hw_cost_function': 'linear', 'hw_cost_exp': None, 'hw_cost_coef': 0.0007, 'hw_cost_multiplier': 1.0, 'weights_lr_base': 0.9, 'arch_params_lr_base': 0.9, 'update_lrs_every_step': False, 'seed': 1, 'save_metrics_param': 'save_file_mlp_search_criteo_kaggle_supernet_1_1'}
+FETCHED num_vectors = [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000], max_ind_range = 20000.
+Load processed = True
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+Reading pre-processed data=kaggleAdDisplayChallenge_processed
+Sparse features= 26, Dense features= 13
+ATTEMPTING TO MOVE DLRM SUPERNET TO GPU cpu.
+DLRMSuperNet(
+  (emb_l): ModuleList(
+    (0): EmbeddingBag(20000, 32, mode=sum)
+    (1): EmbeddingBag(20000, 32, mode=sum)
+    (2): EmbeddingBag(20000, 32, mode=sum)
+    (3): EmbeddingBag(20000, 32, mode=sum)
+    (4): EmbeddingBag(20000, 32, mode=sum)
+    (5): EmbeddingBag(20000, 32, mode=sum)
+    (6): EmbeddingBag(20000, 32, mode=sum)
+    (7): EmbeddingBag(20000, 32, mode=sum)
+    (8): EmbeddingBag(20000, 32, mode=sum)
+    (9): EmbeddingBag(20000, 32, mode=sum)
+    (10): EmbeddingBag(20000, 32, mode=sum)
+    (11): EmbeddingBag(20000, 32, mode=sum)
+    (12): EmbeddingBag(20000, 32, mode=sum)
+    (13): EmbeddingBag(20000, 32, mode=sum)
+    (14): EmbeddingBag(20000, 32, mode=sum)
+    (15): EmbeddingBag(20000, 32, mode=sum)
+    (16): EmbeddingBag(20000, 32, mode=sum)
+    (17): EmbeddingBag(20000, 32, mode=sum)
+    (18): EmbeddingBag(20000, 32, mode=sum)
+    (19): EmbeddingBag(20000, 32, mode=sum)
+    (20): EmbeddingBag(20000, 32, mode=sum)
+    (21): EmbeddingBag(20000, 32, mode=sum)
+    (22): EmbeddingBag(20000, 32, mode=sum)
+    (23): EmbeddingBag(20000, 32, mode=sum)
+    (24): EmbeddingBag(20000, 32, mode=sum)
+    (25): EmbeddingBag(20000, 32, mode=sum)
+  )
+  (bot_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=13, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=32, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=32, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=32, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=32, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (top_l): SuperNetMLP(
+    (fc_layers): ModuleList(
+      (0): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=128, bias=True)
+          )
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=256, bias=True)
+          )
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=512, bias=True)
+          )
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=383, out_features=1024, bias=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (2): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (3): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=128, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=128, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=128, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=128, bias=True)
+          )
+          (4): Identity()
+        )
+        (1): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=256, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=256, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=256, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=256, bias=True)
+          )
+          (4): Identity()
+        )
+        (2): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=512, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=512, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=512, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=512, bias=True)
+          )
+          (4): Identity()
+        )
+        (3): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1024, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1024, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1024, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (4): Identity()
+        )
+      )
+      (4): ModuleList(
+        (0): ModuleList(
+          (0): LinearDLRM(
+            (linear_layer): Linear(in_features=128, out_features=1, bias=True)
+          )
+          (1): LinearDLRM(
+            (linear_layer): Linear(in_features=256, out_features=1, bias=True)
+          )
+          (2): LinearDLRM(
+            (linear_layer): Linear(in_features=512, out_features=1, bias=True)
+          )
+          (3): LinearDLRM(
+            (linear_layer): Linear(in_features=1024, out_features=1, bias=True)
+          )
+        )
+      )
+    )
+    (bn_layers): ModuleList()
+    (theta_parameters): ParameterList(
+        (0): Parameter containing: [torch.FloatTensor of size 1]
+        (1): Parameter containing: [torch.FloatTensor of size 1]
+        (2): Parameter containing: [torch.FloatTensor of size 1]
+        (3): Parameter containing: [torch.FloatTensor of size 1]
+        (4): Parameter containing: [torch.FloatTensor of size 5]
+        (5): Parameter containing: [torch.FloatTensor of size 5]
+        (6): Parameter containing: [torch.FloatTensor of size 5]
+        (7): Parameter containing: [torch.FloatTensor of size 5]
+        (8): Parameter containing: [torch.FloatTensor of size 5]
+        (9): Parameter containing: [torch.FloatTensor of size 5]
+        (10): Parameter containing: [torch.FloatTensor of size 5]
+        (11): Parameter containing: [torch.FloatTensor of size 5]
+        (12): Parameter containing: [torch.FloatTensor of size 5]
+        (13): Parameter containing: [torch.FloatTensor of size 5]
+        (14): Parameter containing: [torch.FloatTensor of size 5]
+        (15): Parameter containing: [torch.FloatTensor of size 5]
+        (16): Parameter containing: [torch.FloatTensor of size 4]
+    )
+  )
+  (theta_parameters): ParameterList(
+      (0): Parameter containing: [torch.FloatTensor of size 1]
+      (1): Parameter containing: [torch.FloatTensor of size 1]
+      (2): Parameter containing: [torch.FloatTensor of size 1]
+      (3): Parameter containing: [torch.FloatTensor of size 1]
+      (4): Parameter containing: [torch.FloatTensor of size 5]
+      (5): Parameter containing: [torch.FloatTensor of size 5]
+      (6): Parameter containing: [torch.FloatTensor of size 5]
+      (7): Parameter containing: [torch.FloatTensor of size 5]
+      (8): Parameter containing: [torch.FloatTensor of size 5]
+      (9): Parameter containing: [torch.FloatTensor of size 5]
+      (10): Parameter containing: [torch.FloatTensor of size 5]
+      (11): Parameter containing: [torch.FloatTensor of size 5]
+      (12): Parameter containing: [torch.FloatTensor of size 5]
+      (13): Parameter containing: [torch.FloatTensor of size 5]
+      (14): Parameter containing: [torch.FloatTensor of size 5]
+      (15): Parameter containing: [torch.FloatTensor of size 5]
+      (16): Parameter containing: [torch.FloatTensor of size 4]
+      (17): Parameter containing: [torch.FloatTensor of size 1]
+      (18): Parameter containing: [torch.FloatTensor of size 1]
+      (19): Parameter containing: [torch.FloatTensor of size 1]
+      (20): Parameter containing: [torch.FloatTensor of size 1]
+      (21): Parameter containing: [torch.FloatTensor of size 5]
+      (22): Parameter containing: [torch.FloatTensor of size 5]
+      (23): Parameter containing: [torch.FloatTensor of size 5]
+      (24): Parameter containing: [torch.FloatTensor of size 5]
+      (25): Parameter containing: [torch.FloatTensor of size 5]
+      (26): Parameter containing: [torch.FloatTensor of size 5]
+      (27): Parameter containing: [torch.FloatTensor of size 5]
+      (28): Parameter containing: [torch.FloatTensor of size 5]
+      (29): Parameter containing: [torch.FloatTensor of size 5]
+      (30): Parameter containing: [torch.FloatTensor of size 5]
+      (31): Parameter containing: [torch.FloatTensor of size 5]
+      (32): Parameter containing: [torch.FloatTensor of size 5]
+      (33): Parameter containing: [torch.FloatTensor of size 4]
+  )
+)

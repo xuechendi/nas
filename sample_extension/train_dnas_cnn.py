@@ -176,8 +176,8 @@ def write_oom_exit(oom_error):
 # Move DLRM supernet to GPU.
 # Writing OOM error allows for job restarting.
 try:
-    host_device = torch.device(f"cuda:{args.host_gpu_id}")
-    print(f"ATTEMPTING TO MOVE CNN SUPERNET TO GPU {args.host_gpu_id}.")
+    host_device = torch.device(f"cuda:{args.host_gpu_id}" if torch.cuda.is_available() else "cpu")
+    print(f"ATTEMPTING TO MOVE CNN SUPERNET TO GPU {args.host_gpu_id if torch.cuda.is_available() else 'cpu'}.")
     print(cnn_supernet)
     cnn_supernet.to(host_device)
 except RuntimeError as oom_error:

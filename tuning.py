@@ -85,8 +85,9 @@ def get_launch_string(chosen_hyperparam_indices, hyperparam_options, gpu_id, sav
 	entire_string = entire_string.replace("SAVE_METRICS_PARAM", save_file_name)
 
 	# Add nohup and &.
-	command_with_nohup = "nohup " + entire_string
-	launch_command = command_with_nohup + " &"
+	#command_with_nohup = "nohup " + entire_string
+	#launch_command = command_with_nohup + " &"
+	launch_command = entire_string
 
 	# Return the launch command.
 	return launch_command

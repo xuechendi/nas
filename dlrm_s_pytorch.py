@@ -403,7 +403,7 @@ class DLRM_Net(nn.Module):
             # distribute embeddings (model parallelism)
             t_list = []
             for k, emb in enumerate(self.emb_l):
-                d = torch.device("cuda:" + str(k % ndevices))
+                d = torch.device("cuda:" + str(k % ndevices) if torch.cuda.is_available() else "cpu")
                 emb.to(d)
                 t_list.append(emb.to(d))
             self.emb_l = nn.ModuleList(t_list)
@@ -420,7 +420,7 @@ class DLRM_Net(nn.Module):
         t_list = []
         i_list = []
         for k, _ in enumerate(self.emb_l):
-            d = torch.device("cuda:" + str(k % ndevices))
+            d = torch.device("cuda:" + str(k % ndevices) if torch.cuda.is_available() else "cpu")
             t_list.append(lS_o[k].to(d))
             i_list.append(lS_i[k].to(d))
         lS_o = t_list
@@ -453,7 +453,7 @@ class DLRM_Net(nn.Module):
 
         t_list = []
         for k, _ in enumerate(self.emb_l):
-            d = torch.device("cuda:" + str(k % ndevices))
+            d = torch.device("cuda:" + str(k % ndevices) if torch.cuda.is_available() else "cpu")
             y = scatter(ly[k], device_ids, dim=0)
             t_list.append(y)
         # adjust the list to be ordered per device
@@ -915,7 +915,7 @@ if __name__ == "__main__":
                 # note that the call to .to(device) has already happened
                 ld_model = torch.load(
                     args.load_model,
-                    map_location=torch.device('cuda')
+                    map_location=torch.device('cuda' if torch.cuda.is_available() else "cpu")
                     # map_location=lambda storage, loc: storage.cuda(0)
                 )
         else:

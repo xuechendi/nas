@@ -160,7 +160,7 @@ logfile_open.write(f"STARTED SUPERNET TRAINING TUNING AT {time.time()}\n")
 logfile_open.flush()
 
 # Start supernet training tuning.
-os.system(f"nohup {args.python_cmd} tuning.py {args.train_dnas_tuning_config} {args.global_experiment_id}_supernet 0")
+os.system(f"{args.python_cmd} -u tuning.py {args.train_dnas_tuning_config} {args.global_experiment_id}_supernet 0")
 
 # Wait until supernet training tuning is complete.
 while not jobs_done([f"all_configs_save_file_{args.global_experiment_id}_supernet"]):
@@ -172,7 +172,7 @@ logfile_open.write(f"STARTED SAMPLED ARCHITECTURE TRAINING TUNING AT {time.time(
 logfile_open.flush()
 
 # Start sampled architeture training tuning.
-os.system(f"nohup {args.python_cmd} tuning.py {args.train_sampled_tuning_config} {args.global_experiment_id}_sampled 1")
+os.system(f"{args.python_cmd} -u tuning.py {args.train_sampled_tuning_config} {args.global_experiment_id}_sampled 1")
 
 # Wait until the sampled architecture training tuning is complete.
 while not jobs_done([f"all_configs_save_file_{args.global_experiment_id}_sampled"]):

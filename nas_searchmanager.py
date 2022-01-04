@@ -24,6 +24,8 @@ from utils import step_lambda_lr
 import time
 import os
 from torch.nn.utils import clip_grad_norm_ as clip_grad
+from utils import Timer
+
 
 class SearchManager(object):
     def __init__(self,
@@ -348,12 +350,13 @@ class SearchManager(object):
                                                 **self.mask_optim_init_params)
 
         # Get all of the epochs to be completed.
-        all_epochs = self.calc_epoch_training_params(self.n_alt_train_amt,
-                                                        self.num_warmup_epochs,
-                                                        self.n_total_s_net_train_epochs,
-                                                        self.init_temp,
-                                                        self.temp_decay_rate,
-                                                        self.architecture_sampling)
+        with Timer(f"calc_epoch_training_params"):
+            all_epochs = self.calc_epoch_training_params(self.n_alt_train_amt,
+                                                            self.num_warmup_epochs,
+                                                            self.n_total_s_net_train_epochs,
+                                                            self.init_temp,
+                                                            self.temp_decay_rate,
+                                                            self.architecture_sampling)
 
         # Calculate the number of steps in the
         # weights and validation dataloaders.
@@ -374,134 +377,136 @@ class SearchManager(object):
         loss_values = []
 
         # Iterate through all of the epochs.
+        print("start training")
         for current_epoch in all_epochs:
-            print(current_epoch)
-            with open(self.logfile_name, "a") as logfile_open:
-                logfile_open.write(str(current_epoch) + "\n")
-                logfile_open.flush()
+            with Timer(f"{current_epoch}"):
+                with open(self.logfile_name, "a") as logfile_open:
+                    logfile_open.write(str(current_epoch) + "\n")
+                    logfile_open.flush()
 
-            # Get the current dataloader
-            # (and the number of steps
-            # in it) and temperature, as
-            # well as the number of steps
-            # to skip at the beginning of
-            # the epoch and the total
-            # number of steps to train.
-            if current_epoch["what_to_train"] == "mask":
-                current_dataloader = self.m_dataloader
-            else:
-                current_dataloader = self.w_dataloader
+                # Get the current dataloader
+                # (and the number of steps
+                # in it) and temperature, as
+                # well as the number of steps
+                # to skip at the beginning of
+                # the epoch and the total
+                # number of steps to train.
+                if current_epoch["what_to_train"] == "mask":
+                    current_dataloader = self.m_dataloader
+                else:
+                    current_dataloader = self.w_dataloader
 
-            # Steps in dataloader depending
-            # on what we are training.
-            if current_epoch["what_to_train"] == "mask":
-                n_batches = n_m_batches
-            else:
-                n_batches = n_w_batches
+                # Steps in dataloader depending
+                # on what we are training.
+                if current_epoch["what_to_train"] == "mask":
+                    n_batches = n_m_batches
+                else:
+                    n_batches = n_w_batches
 
-            # Current temperature.
-            curr_temp = current_epoch["temperature"]
+                # Current temperature.
+                curr_temp = current_epoch["temperature"]
 
-            # We currently calculate the
-            # start and end epochs based
-            # on what we are training;
-            # this will maintain
-            # continuous epochs for both
-            # the weights and the mask.
+                # We currently calculate the
+                # start and end epochs based
+                # on what we are training;
+                # this will maintain
+                # continuous epochs for both
+                # the weights and the mask.
 
-            # Number of epochs already done
-            # and number that will be done
-            # once this epoch or partial
-            # epoch is completed.
-            if current_epoch["what_to_train"] == "weights":
-                epochs_so_far = current_epoch["weights_start"]
-                epochs_once_done = current_epoch["weights_end"]
-            else:
-                epochs_so_far = current_epoch["mask_start"]
-                epochs_once_done = current_epoch["mask_end"]
+                # Number of epochs already done
+                # and number that will be done
+                # once this epoch or partial
+                # epoch is completed.
+                if current_epoch["what_to_train"] == "weights":
+                    epochs_so_far = current_epoch["weights_start"]
+                    epochs_once_done = current_epoch["weights_end"]
+                else:
+                    epochs_so_far = current_epoch["mask_start"]
+                    epochs_once_done = current_epoch["mask_end"]
 
-            # batches probably better than steps for name.
-            frac_epoch = float(float(epochs_so_far) - float(int(epochs_so_far)))
-            steps_to_skip = int(frac_epoch * float(n_batches))
+                # batches probably better than steps for name.
+                frac_epoch = float(float(epochs_so_far) - float(int(epochs_so_far)))
+                steps_to_skip = int(frac_epoch * float(n_batches))
 
-            to_do_epoch = float(float(epochs_once_done) - float(epochs_so_far))
-            steps_to_train = int(to_do_epoch * float(n_batches))
+                to_do_epoch = float(float(epochs_once_done) - float(epochs_so_far))
+                steps_to_train = int(to_do_epoch * float(n_batches))
 
-            # Adjust the learning rates; run
-            # step_lambda_lr for both the
-            # weights and the mask optimizers.
-            weights_epochs_completed = current_epoch["weights_start"]
-            step_lambda_lr(weights_optimizer,
-                            self.weights_lr_lambdas,
-                            weights_epochs_completed,
-                            self.weights_initial_lrs)
+                # Adjust the learning rates; run
+                # step_lambda_lr for both the
+                # weights and the mask optimizers.
+                weights_epochs_completed = current_epoch["weights_start"]
+                step_lambda_lr(weights_optimizer,
+                                self.weights_lr_lambdas,
+                                weights_epochs_completed,
+                                self.weights_initial_lrs)
 
-            mask_epochs_completed = current_epoch["mask_start"]
-            step_lambda_lr(mask_optimizer,
-                            self.mask_lr_lambdas,
-                            mask_epochs_completed,
-                            self.mask_initial_lrs)
+                mask_epochs_completed = current_epoch["mask_start"]
+                step_lambda_lr(mask_optimizer,
+                                self.mask_lr_lambdas,
+                                mask_epochs_completed,
+                                self.mask_initial_lrs)
 
-            # Store the number of steps trained in the epoch.
-            steps_trained = 0
+                # Store the number of steps trained in the epoch.
+                steps_trained = 0
 
-            # Training loop.
-            for batch_idx, (X, lS_o, lS_i, T) in enumerate(current_dataloader):
-                # Check if we need to skip this
-                # training step; if so, skip it.
-                if batch_idx < steps_to_skip:
-                    continue
+                # Training loop.
+                for batch_idx, (X, lS_o, lS_i, T) in enumerate(current_dataloader):
+                    # Check if we need to skip this
+                    # training step; if so, skip it.
+                    if batch_idx < steps_to_skip:
+                        continue
 
-                # If this is the last batch with incorrec batch size, skip.
-                if list(T.size())[0] != current_dataloader.batch_size:
-                    continue
+                    # If this is the last batch with incorrec batch size, skip.
+                    if list(T.size())[0] != current_dataloader.batch_size:
+                        continue
 
-                # Run one training step.
-                curr_loss_value = self.run_one_dnas_step(current_epoch, batch_idx,
-                    curr_temp, X, lS_o, lS_i, T, weights_optimizer, mask_optimizer)
-                loss_values.append(curr_loss_value)
+                    # Run one training step.
+                    curr_loss_value = self.run_one_dnas_step(current_epoch, batch_idx,
+                        curr_temp, X, lS_o, lS_i, T, weights_optimizer, mask_optimizer)
+                    loss_values.append(curr_loss_value)
 
-                # Increment the trained steps counter.
-                steps_trained += 1
+                    # Increment the trained steps counter.
+                    steps_trained += 1
 
-                # Check if we need to update the learning rates.
-                if self.update_lrs_every_step:
-                    if current_epoch["what_to_train"] == "weights" and current_epoch["epoch_type"] == "warmup":
-                         epoch_length = current_epoch["weights_end"] - current_epoch["weights_start"]
-                         weights_epochs_completed = current_epoch["weights_start"] + ((steps_trained / steps_to_train) * epoch_length)
-                         step_lambda_lr(weights_optimizer,
-                                        self.weights_lr_lambdas,
-                                        weights_epochs_completed,
-                                        self.weights_initial_lrs)
+                    # Check if we need to update the learning rates.
+                    if self.update_lrs_every_step:
+                        if current_epoch["what_to_train"] == "weights" and current_epoch["epoch_type"] == "warmup":
+                            epoch_length = current_epoch["weights_end"] - current_epoch["weights_start"]
+                            weights_epochs_completed = current_epoch["weights_start"] + ((steps_trained / steps_to_train) * epoch_length)
+                            step_lambda_lr(weights_optimizer,
+                                            self.weights_lr_lambdas,
+                                            weights_epochs_completed,
+                                            self.weights_initial_lrs)
 
-                    elif current_epoch["what_to_train"] == "weights" and current_epoch["epoch_type"] == "weights_training":
-                         epoch_length = current_epoch["weights_end"] - current_epoch["weights_start"]
-                         weights_epochs_completed = current_epoch["weights_start"] + ((steps_trained / steps_to_train) * self.n_alt_train_amt)
-                         step_lambda_lr(weights_optimizer,
-                                        self.weights_lr_lambdas,
-                                        weights_epochs_completed,
-                                        self.weights_initial_lrs)
+                        elif current_epoch["what_to_train"] == "weights" and current_epoch["epoch_type"] == "weights_training":
+                            epoch_length = current_epoch["weights_end"] - current_epoch["weights_start"]
+                            weights_epochs_completed = current_epoch["weights_start"] + ((steps_trained / steps_to_train) * self.n_alt_train_amt)
+                            step_lambda_lr(weights_optimizer,
+                                            self.weights_lr_lambdas,
+                                            weights_epochs_completed,
+                                            self.weights_initial_lrs)
 
-                    elif current_epoch["what_to_train"] == "mask":
-                         epoch_length = current_epoch["mask_end"] - current_epoch["mask_start"]
-                         mask_epochs_completed = current_epoch["mask_start"] + ((steps_trained / steps_to_train) * self.n_alt_train_amt)
-                         step_lambda_lr(mask_optimizer,
-                                        self.mask_lr_lambdas,
-                                        mask_epochs_completed,
-                                        self.mask_initial_lrs)
+                        elif current_epoch["what_to_train"] == "mask":
+                            epoch_length = current_epoch["mask_end"] - current_epoch["mask_start"]
+                            mask_epochs_completed = current_epoch["mask_start"] + ((steps_trained / steps_to_train) * self.n_alt_train_amt)
+                            step_lambda_lr(mask_optimizer,
+                                            self.mask_lr_lambdas,
+                                            mask_epochs_completed,
+                                            self.mask_initial_lrs)
 
-                # Check if we are done training; if so, exit the loop.
-                if steps_trained >= steps_to_train:
-                    break
+                    # Check if we are done training; if so, exit the loop.
+                    if steps_trained >= steps_to_train:
+                        break
 
-            # Sample architectures.
-            arch_fnames = self.sample_archs(current_epoch)
-            saved_arch_fnames += arch_fnames
+                # Sample architectures.
+                arch_fnames = self.sample_archs(current_epoch)
+                saved_arch_fnames += arch_fnames
 
-            # Write the saved loss values to a pickle file.
-            save_loss_file = "loss_values_" + self.experiment_id
-            with open(save_loss_file, "wb") as writefile:
-                pickle.dump(loss_values, writefile)
+                # Write the saved loss values to a pickle file.
+                save_loss_file = "loss_values_" + self.experiment_id
+                with open(save_loss_file, "wb") as writefile:
+                    pickle.dump(loss_values, writefile)
+
 
         # Calculate time to complete search process.
         dnas_finish_time = time.time()

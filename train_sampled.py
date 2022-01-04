@@ -52,7 +52,9 @@ def evaluate(dlrm, evaluation_dataloader):
     # CPU and CUDA RNG states before evaluation and load them
     # back after evaluation.
     original_cpu_rng_state = torch.get_rng_state()
-    original_gpu_rng_state = torch.cuda.get_rng_state()
+    enable_gpu = torch.cuda.is_available()
+    if enable_gpu:
+        original_gpu_rng_state = torch.cuda.get_rng_state()
 
     # Create loss function.
     loss_function = nn.BCELoss()
@@ -92,7 +94,8 @@ def evaluate(dlrm, evaluation_dataloader):
 
     # Re-load original RNG states.
     torch.set_rng_state(original_cpu_rng_state)
-    torch.cuda.set_rng_state(original_gpu_rng_state)
+    if enable_gpu:
+        torch.cuda.set_rng_state(original_gpu_rng_state)
 
     # Return results.
     return {"loss" : dataset_loss, "calibration" : dataset_calibration}
@@ -313,7 +316,7 @@ def write_oom_exit(oom_error):
 
 # Move DLRM supernet to GPU.
 try:
-    host_device = torch.device(f"cuda:{args.host_gpu_id}")
+    host_device = torch.device(f"cuda:{args.host_gpu_id}" if torch.cuda.is_available() else "cpu")
     dlrm.to(host_device)
 except RuntimeError as oom_error:
     write_oom_exit(oom_error)

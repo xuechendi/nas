@@ -14,12 +14,28 @@
 # Import statements.
 import torch
 import torch.optim
+import timeit
 
 # Constants.
 STR_TO_OPTIM = {"sgd" : torch.optim.SGD,
                 "adam" : torch.optim.Adam,
                 "adagrad" : torch.optim.Adagrad}
 KAGGLE_DAYS = 7
+
+class Timer:
+    level = 0
+
+    def __init__(self, name):
+        self.name = name
+
+    def __enter__(self):
+        self.start = timeit.default_timer()
+        Timer.level += 1
+
+    def __exit__(self, *a, **kw):
+        Timer.level -= 1
+        print(
+            f'{"  " * Timer.level}{self.name} took {timeit.default_timer() - self.start} sec')
 
 def vectors_sum(vecs):
     """

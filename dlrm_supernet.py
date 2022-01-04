@@ -293,7 +293,7 @@ class DLRMSuperNet(DLRM_Net, SuperNet):
 
         # Run sampling if necessary. WILL THIS SAMPLE TWICE?
         if sampling == "soft":
-            print("RUNNING SOFT SAMPLING.")
+            #print("RUNNING SOFT SAMPLING.")
             if self.search_space == "top_bottom_mlps":
                 self.bot_l.soft_sample(temperature, input_batch_size)
                 self.top_l.soft_sample(temperature, input_batch_size)
