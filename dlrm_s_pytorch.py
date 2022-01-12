@@ -176,7 +176,7 @@ class DLRM_Net(nn.Module):
 
     def create_emb(self, m, ln):
         emb_l = nn.ModuleList()
-        for i in range(0, ln.size):
+        for i in range(len(ln)):
             n = ln[i]
 
             # construct embedding operator
@@ -237,6 +237,8 @@ class DLRM_Net(nn.Module):
         md_threshold=200,
         max_emb_dim=0,
     ):
+        #ln_emb=[2, 59, 10132, 2203, 1, 24, 12517, 1, 1, 9315, 5683, 8352, 3194, 27, 14992, 5462, 10, 5652, 2173, 4, 7047, 18, 15, 2862, 105, 14258]
+        
         super(DLRM_Net, self).__init__()
 
         if (

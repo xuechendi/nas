@@ -160,6 +160,7 @@ logfile_open.write(f"STARTED SUPERNET TRAINING TUNING AT {time.time()}\n")
 logfile_open.flush()
 
 # Start supernet training tuning.
+print("call tuning")
 os.system(f"{args.python_cmd} -u tuning.py {args.train_dnas_tuning_config} {args.global_experiment_id}_supernet 0")
 
 # Wait until supernet training tuning is complete.

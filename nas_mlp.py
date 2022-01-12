@@ -18,6 +18,22 @@ from nas_supernet import SuperNet
 from nas_linear import LinearDLRM
 import numpy as np
 
+class Cast(nn.Module):
+     __constants__ = ['to_dtype']
+
+     def __init__(self, to_dtype):
+         super(Cast, self).__init__()
+         self.to_dtype = to_dtype
+
+     def forward(self, input):
+         if input.is_mkldnn:
+             return input.to_dense(self.to_dtype)
+         else:
+             return input.to(self.to_dtype)
+
+     def extra_repr(self):
+         return 'to(%s)' % self.to_dtype
+
 class SuperNetMLP(SuperNet):
     def __init__(self,
                 input_dim,
@@ -31,7 +47,8 @@ class SuperNetMLP(SuperNet):
                 last_layer_batch_norm=False,
                 bias=False,
                 last_layer_bias=True,
-                last_layer_activation=F.relu):
+                last_layer_activation=F.relu,
+                use_bf16=False):
 
         """
         Creates the SuperNetMLP.
@@ -79,6 +96,7 @@ class SuperNetMLP(SuperNet):
 
         # Superclass initialization.
         super(SuperNetMLP, self).__init__()
+        self.use_bf16 = use_bf16
 
         # Store for later.
         self.input_dim = input_dim
@@ -150,7 +168,9 @@ class SuperNetMLP(SuperNet):
                         # Create the correct FC and batch norm layers.
                         curr_fc_layer = LinearDLRM(curr_in_size,
                                                     curr_o_size,
-                                                    bias=curr_use_bias)
+                                                    bias=curr_use_bias,
+                                                    output_stays_blocked=(s_net_layer < (self.num_s_net_layers - 2)),
+                                                    use_bf16=self.use_bf16)
 
                     # Append these operators to curr_o_size_fc_layers
                     # and curr_o_size_bn_layers.
@@ -186,6 +206,9 @@ class SuperNetMLP(SuperNet):
                 self.use_relu.append(self.relu_last_layer)
             else:
                 self.use_relu.append(True)
+
+        if self.use_bf16:
+            self.fc_layers.append(Cast(torch.float32))
 
         # Create the mask values.
         self.mask_values = [None] * len(self.theta_parameters)

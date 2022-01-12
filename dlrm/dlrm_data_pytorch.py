@@ -34,7 +34,15 @@ from numpy import random as ra
 import torch
 from torch.utils.data import Dataset, RandomSampler
 
-import data_loader_terabyte
+import dlrm.data_loader_terabyte as data_loader_terabyte
+import mlperf_logger
+
+from prefetch_generator import BackgroundGenerator
+
+class DataLoaderX(torch.utils.data.DataLoader):
+
+    def __iter__(self):
+        return BackgroundGenerator(super().__iter__())
 
 
 # Kaggle Display Advertising Challenge Dataset
@@ -55,8 +63,7 @@ class CriteoDataset(Dataset):
             split="train",
             raw_path="",
             pro_data="",
-            memory_map=False,
-            dataset_multiprocessing=False
+            memory_map=False
     ):
         # dataset
         # tar_fea = 1   # single target
@@ -113,8 +120,7 @@ class CriteoDataset(Dataset):
                 split,
                 randomize,
                 dataset == "kaggle",
-                memory_map,
-                dataset_multiprocessing
+                memory_map
             )
 
         # get a number of samples per day
@@ -325,9 +331,9 @@ class CriteoDataset(Dataset):
 def collate_wrapper_criteo(list_of_tuples):
     # where each tuple is (X_int, X_cat, y)
     transposed_data = list(zip(*list_of_tuples))
-    X_int = torch.log(torch.tensor(np.array(transposed_data[0]), dtype=torch.float) + 1)
-    X_cat = torch.tensor(np.array(transposed_data[1]), dtype=torch.long)
-    T = torch.tensor(np.array(transposed_data[2]), dtype=torch.float32).view(-1, 1)
+    X_int = torch.log(torch.tensor(transposed_data[0], dtype=torch.float) + 1)
+    X_cat = torch.tensor(transposed_data[1], dtype=torch.long)
+    T = torch.tensor(transposed_data[2], dtype=torch.float32).view(-1, 1)
 
     batchSize = X_cat.shape[0]
     featureCnt = X_cat.shape[1]
@@ -347,8 +353,7 @@ def ensure_dataset_preprocessed(args, d_path):
         "train",
         args.raw_data_file,
         args.processed_data_file,
-        args.memory_map,
-        args.dataset_multiprocessing
+        args.memory_map
     )
 
     _ = CriteoDataset(
@@ -359,8 +364,7 @@ def ensure_dataset_preprocessed(args, d_path):
         "test",
         args.raw_data_file,
         args.processed_data_file,
-        args.memory_map,
-        args.dataset_multiprocessing
+        args.memory_map
     )
 
     for split in ['train', 'val', 'test']:
@@ -383,21 +387,12 @@ def ensure_dataset_preprocessed(args, d_path):
 def make_criteo_data_and_loaders(args):
 
     if args.mlperf_logging and args.memory_map and args.data_set == "terabyte":
-        # more efficient for larger batches
-        data_directory = path.dirname(args.raw_data_file)
+
 
         if args.mlperf_bin_loader:
-            lstr = args.processed_data_file.split("/")
-            d_path = "/".join(lstr[0:-1]) + "/" + lstr[-1].split(".")[0]
-            train_file = d_path + "_train.bin"
-            test_file = d_path + "_test.bin"
-            # val_file = d_path + "_val.bin"
-            counts_file = args.raw_data_file + '_fea_count.npz'
-
-            if any(not path.exists(p) for p in [train_file,
-                                                test_file,
-                                                counts_file]):
-                ensure_dataset_preprocessed(args, d_path)
+            train_file = args.train_data_path
+            test_file = args.eval_data_path
+            counts_file = args.day_feature_count
 
             train_data = data_loader_terabyte.CriteoBinDataset(
                 data_file=train_file,
@@ -406,7 +401,10 @@ def make_criteo_data_and_loaders(args):
                 max_ind_range=args.max_ind_range
             )
 
-            train_loader = torch.utils.data.DataLoader(
+            mlperf_logger.log_event(key=mlperf_logger.constants.TRAIN_SAMPLES,
+                                    value=train_data.num_samples)
+
+            train_loader = DataLoaderX(
                 train_data,
                 batch_size=None,
                 batch_sampler=None,
@@ -425,7 +423,10 @@ def make_criteo_data_and_loaders(args):
                 max_ind_range=args.max_ind_range
             )
 
-            test_loader = torch.utils.data.DataLoader(
+            mlperf_logger.log_event(key=mlperf_logger.constants.EVAL_SAMPLES,
+                                    value=test_data.num_samples)
+
+            test_loader = DataLoaderX(
                 test_data,
                 batch_size=None,
                 batch_sampler=None,
@@ -446,8 +447,7 @@ def make_criteo_data_and_loaders(args):
                 "train",
                 args.raw_data_file,
                 args.processed_data_file,
-                args.memory_map,
-                args.dataset_multiprocessing
+                args.memory_map
             )
 
             test_data = CriteoDataset(
@@ -458,8 +458,7 @@ def make_criteo_data_and_loaders(args):
                 "test",
                 args.raw_data_file,
                 args.processed_data_file,
-                args.memory_map,
-                args.dataset_multiprocessing
+                args.memory_map
             )
 
             train_loader = data_loader_terabyte.DataLoader(
@@ -488,8 +487,7 @@ def make_criteo_data_and_loaders(args):
             "train",
             args.raw_data_file,
             args.processed_data_file,
-            args.memory_map,
-            args.dataset_multiprocessing
+            args.memory_map
         )
 
         test_data = CriteoDataset(
@@ -500,8 +498,7 @@ def make_criteo_data_and_loaders(args):
             "test",
             args.raw_data_file,
             args.processed_data_file,
-            args.memory_map,
-            args.dataset_multiprocessing
+            args.memory_map
         )
 
         train_loader = torch.utils.data.DataLoader(

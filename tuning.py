@@ -259,6 +259,7 @@ if __name__ == "__main__":
 				# Launch job.
 				open("tuning_logfile", "a").write(f"INITIALLY LAUNCHING: {launched_num} {curr_launch_command}.\n")
 				open("tuning_logfile", "a").flush()
+				print(curr_launch_command)
 				os.system(curr_launch_command)
 				launched_num += 1
 
@@ -327,6 +328,7 @@ if __name__ == "__main__":
 					# Launch job.
 					open("tuning_logfile", "a").write(f"LAUNCHING: {launched_num} {curr_launch_command}.\n")
 					open("tuning_logfile", "a").flush()
+					print(curr_launch_command)
 					os.system(curr_launch_command)
 					launched_num += 1
 

@@ -108,6 +108,7 @@ class SuperNet(nn.Module):
             # Set the mask values using F.gumbel_softmax.
             curr_mask = F.gumbel_softmax(curr_theta_param_exp, tau=temp)
             self.mask_values[mask_list_index] = curr_mask
+        #print(f"theta is {self.theta_parameters}, mask_values is {self.mask_values}")
 
     def hard_sample(self):
         # This results in the mask parameters

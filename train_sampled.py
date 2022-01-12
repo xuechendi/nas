@@ -22,6 +22,7 @@ from torch.nn.utils import clip_grad_norm_ as clip_grad
 from utils import step_lambda_lr
 import time
 import os
+from sklearn.metrics import roc_auc_score
 
 # Utility function.
 # Very slightly modified from dlrm_s_pytorch.py.
@@ -299,6 +300,13 @@ while not dataloaders_loaded:
     except Exception:
         continue
 
+def get_auc(scores, targets):
+    scores = np.concatenate(scores, axis=0)
+    targets = np.concatenate(targets, axis=0)
+    
+    auc = roc_auc_score(targets, scores)
+    return auc
+
 # Function to deal with OOM errors.
 def write_oom_exit(oom_error):
     """
@@ -383,7 +391,14 @@ for epoch in range(n_inner_loops):
     step_lambda_lr(optim, optim_lr_lambdas, epoch, initial_lrs)
 
     # Training loop for one epoch.
+    scores = []
+    targets = []
+    losses = []
+    last_print_elapse = 0
+    train_elapse = 0
     for iter, (X, lS_o, lS_i, T) in enumerate(train_dataloader):
+        time_1 = time.time()
+        should_test = (iter % 800 == 0) and (iter != 0)
         # If this is the last batch with incorrect batch size, skip.
         if list(T.size())[0] != train_dataloader.batch_size:
             continue
@@ -412,11 +427,13 @@ for epoch in range(n_inner_loops):
 
             # Forward pass.
             click_probabilities = dlrm(dense_features, sparse_offsets, sparse_indices)
-            print(f"Iteration {iter}, click probabilities mean = {torch.mean(click_probabilities)}, stdev = {torch.std(click_probabilities)}")
+            #print(f"Iteration {iter}, click probabilities mean = {torch.mean(click_probabilities)}, stdev = {torch.std(click_probabilities)}")
 
             # Calculate loss.
             loss = loss_function(click_probabilities, labels)
-            print(f"Iteration {iter}, loss = {loss.item()}")
+            scores.append(click_probabilities.detach().cpu().numpy())
+            targets.append(labels)
+            losses.append(float(loss.item()))
 
             # Record the current loss.
             curr_epoch_loss.append(loss.item())
@@ -429,6 +446,14 @@ for epoch in range(n_inner_loops):
 
             # Optimizer step.
             optim.step()
+
+            if should_test:
+                auc = get_auc(scores, targets)
+                print(f"Iteration {iter} took {train_elapse - last_print_elapse} s, {(train_elapse - last_print_elapse)*1000/800} ms/iter, loss = {np.mean(losses)}, auc from train = {auc}")
+                last_print_elapse = train_elapse
+                scores = []
+                targets = []
+                losses = []
 
         except RuntimeError as oom_error:
             write_oom_exit(oom_error)
@@ -454,7 +479,7 @@ for epoch in range(n_inner_loops):
             # Now that we have performed validation at this epoch point,
             # increment the current evaluation index.
             curr_eval_ix += 1
-
+        train_elapse += (time.time() - time_1)
     # Add curr_epoch_loss to overall loss list.
     loss_over_time.append(curr_epoch_loss)
 

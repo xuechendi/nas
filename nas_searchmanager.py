@@ -16,6 +16,7 @@
 # Bichen Wu's FBNet code.
 
 # Various import statements.
+import sys
 import torch
 import torch.nn as nn
 import numpy as np
@@ -26,6 +27,36 @@ import os
 from torch.nn.utils import clip_grad_norm_ as clip_grad
 from utils import Timer
 
+#try:
+#    import intel_pytorch_extension as ipex
+#    from intel_pytorch_extension import core
+#except:
+#    print("can't find intel_pytorch_extension")
+#    pass
+#from dlrm import dlrm_data_pytorch as dp
+from sklearn.metrics import roc_auc_score
+
+class DLRMAdvisorArgs:
+    def __init__(self):
+        DATA_PATH = "/home/vmagent/app/dataset/criteo/"
+        self.data_set = "terabyte"
+        self.data_sub_sample_rate = 0.0
+        self.data_randomize = "total"
+        self.dataset_multiprocessing = False
+        self.day_feature_count = f"{DATA_PATH}/day_fea_count.npz"
+        self.eval_data_path = f"{DATA_PATH}/valid/test_data.bin"
+        self.max_ind_range = -1
+        self.memory_map = True
+        self.mini_batch_size = 262144
+        self.mlperf_bin_loader = True
+        self.mlperf_bin_shuffle = True
+        self.mlperf_logging = True
+        self.num_workers = 0
+        self.raw_data_file = f"{DATA_PATH}/day"
+        self.processed_data_file = f"{DATA_PATH}/terabyte_processed.npz"
+        self.train_data_path = f"{DATA_PATH}/train/train_data.bin"
+        self.test_mini_batch_size = 131072
+        self.test_num_workers = 0
 
 class SearchManager(object):
     def __init__(self,
@@ -58,7 +89,8 @@ class SearchManager(object):
                 cost_exp=None,
                 cost_coef=None,
                 exponential_cost=True,
-                cost_multiplier=None):
+                cost_multiplier=None,
+                resume_model_path=None):
 
         """
         Initializes the SearchManager object.
@@ -74,6 +106,11 @@ class SearchManager(object):
 
         # Read various parameters from parameters and store for use later.
         self.super_net = super_net
+        self.best_auc_test = 0.5
+        self.resume_mode_path = resume_model_path
+        #args = DLRMAdvisorArgs()
+        #train_data, train_ld, test_data, self.test_ld = dp.make_criteo_data_and_loaders(args)
+        #self.nbatches_test = len(self.test_ld)
 
         self.init_temp = init_temp
         self.temp_decay_rate = temp_decay_rate
@@ -284,8 +321,10 @@ class SearchManager(object):
         elif current_epoch["what_to_train"] == "mask":
             mask_optimizer.step()
 
+        S = model_predictions.detach().cpu().numpy()  # numpy array
+
         # Return the loss value.
-        return float(loss.item())
+        return float(loss.item()), S, labels
 
     def sample_archs(self, current_epoch):
         saved_arch_fnames_local = []
@@ -333,6 +372,14 @@ class SearchManager(object):
         # Return all architectures saved in this function.
         return saved_arch_fnames_local
 
+    def get_auc(self, scores, targets):
+        scores = np.concatenate(scores, axis=0)
+        targets = np.concatenate(targets, axis=0)
+        auc = roc_auc_score(targets, scores)
+        if self.best_auc_test < auc:
+            self.best_auc_test = auc
+        return auc
+
     def train_dnas(self):
         """
         Runs the overall training process
@@ -375,14 +422,47 @@ class SearchManager(object):
 
         # Record all of the loss values.
         loss_values = []
+        saved_model_filename = f"{self.experiment_id}_base_model"
 
         # Iterate through all of the epochs.
-        print("start training")
+        print("start training: ")
+        epoch = 0
+        resumed = False
+        with open(self.logfile_name, "a") as logfile_open:
+            logfile_open.write(f"{self.super_net}\n")
+            logfile_open.flush()
+
         for current_epoch in all_epochs:
-            with Timer(f"{current_epoch}"):
+            print(f"{current_epoch}")
+            steps_to_skip = 0
+            with Timer(f"one epoch"):
                 with open(self.logfile_name, "a") as logfile_open:
                     logfile_open.write(str(current_epoch) + "\n")
                     logfile_open.flush()
+                
+                if self.resume_mode_path and not resumed:
+                    print(f"Resume previous model {self.resume_mode_path}")
+                    resumed = True
+                    # let's load previous trained model
+                    checkpoint = torch.load(self.resume_mode_path)[0]
+                    try:
+                        self.super_net.load_state_dict(checkpoint["state_dict"])
+                    except Exception:
+                        import traceback
+                        traceback.print_exc()
+                    steps_to_skip = checkpoint["iter"] - 1
+                    avg_loss = checkpoint["train_loss"]
+                    auc = checkpoint["train_auc"]
+                    name = "warmup"
+                    try:
+                        name = checkpoint["name"]
+                        weights_optimizer.load_state_dict(checkpoint["weights_optimizer_state_dict"])
+                        mask_optimizer.load_state_dict(checkpoint["mask_optimizer_state_dict"])
+                    except Exception:
+                        import traceback
+                        traceback.print_exc()                    
+                    print(f"{name} completed {steps_to_skip} iterations, loss is {avg_loss}, current auc is {auc}")
+                    
 
                 # Get the current dataloader
                 # (and the number of steps
@@ -426,7 +506,7 @@ class SearchManager(object):
 
                 # batches probably better than steps for name.
                 frac_epoch = float(float(epochs_so_far) - float(int(epochs_so_far)))
-                steps_to_skip = int(frac_epoch * float(n_batches))
+                steps_to_skip = int(frac_epoch * float(n_batches)) if not steps_to_skip else steps_to_skip
 
                 to_do_epoch = float(float(epochs_once_done) - float(epochs_so_far))
                 steps_to_train = int(to_do_epoch * float(n_batches))
@@ -450,10 +530,20 @@ class SearchManager(object):
                 steps_trained = 0
 
                 # Training loop.
+                print(f"current dataloader is {current_dataloader.dataset.__dict__}")
+                last_print_training_time = 0
+                n_bad_auc = 0
+                training_time = 0
+                scores = []
+                targets = []
+
                 for batch_idx, (X, lS_o, lS_i, T) in enumerate(current_dataloader):
                     # Check if we need to skip this
                     # training step; if so, skip it.
+                    should_test = (batch_idx % 800 == 0) and (batch_idx != 0)
                     if batch_idx < steps_to_skip:
+                        if should_test:
+                            print(f"Skipped {batch_idx}/{steps_to_skip}")
                         continue
 
                     # If this is the last batch with incorrec batch size, skip.
@@ -461,11 +551,47 @@ class SearchManager(object):
                         continue
 
                     # Run one training step.
-                    curr_loss_value = self.run_one_dnas_step(current_epoch, batch_idx,
-                        curr_temp, X, lS_o, lS_i, T, weights_optimizer, mask_optimizer)
-                    loss_values.append(curr_loss_value)
+                    t1_test = time.time()
+                    try:
+                        curr_loss_value, score, target = self.run_one_dnas_step(current_epoch, batch_idx,
+                            curr_temp, X, lS_o, lS_i, T, weights_optimizer, mask_optimizer)
+                        loss_values.append(curr_loss_value)
+                        scores.append(score)
+                        targets.append(target)
+                    except Exception as e:
+                        import traceback
+                        traceback.print_exc()
+                        sys.exit(1)
+                    training_time += (time.time() - t1_test)
 
                     # Increment the trained steps counter.
+                    if should_test:
+                        if current_epoch["what_to_train"] == "weights":
+                            name = "train_on_weights"
+
+                        elif current_epoch["what_to_train"] == "mask":
+                            name = "train_on_mask"
+                        auc = self.get_auc(scores, targets)
+                        scores = []
+                        targets = []
+                        avg_loss = np.mean(loss_values[-800:])
+                        state = {
+                                    "name": name,
+                                    "epoch": epoch,
+                                    "nepochs": len(all_epochs),
+                                    "nbatches": n_batches,
+                                    "iter": batch_idx + 1,
+                                    "state_dict": self.super_net.state_dict(),
+                                    "train_loss": avg_loss,
+                                    "train_auc": auc,
+                                    "weights_optimizer_state_dict": weights_optimizer.state_dict(),
+                                    "mask_optimizer_state_dict": mask_optimizer.state_dict(),
+                                },
+                        torch.save(state, f"base_{name}_{batch_idx}_loss_{avg_loss}", _use_new_zipfile_serialization=False)
+                        print(f"{name} completed {batch_idx} iterations, took {training_time - last_print_training_time} s, which means per iteration took {(training_time - last_print_training_time)/800*1000} ms, loss is {avg_loss}, current auc is {auc}, best auc is {self.best_auc_test}")
+                        last_print_training_time = training_time
+                        if auc < 0.55:
+                            n_bad_auc += 1
                     steps_trained += 1
 
                     # Check if we need to update the learning rates.
@@ -498,6 +624,7 @@ class SearchManager(object):
                     if steps_trained >= steps_to_train:
                         break
 
+                print(f"Total trained num_batch is {steps_trained}")
                 # Sample architectures.
                 arch_fnames = self.sample_archs(current_epoch)
                 saved_arch_fnames += arch_fnames
@@ -506,6 +633,7 @@ class SearchManager(object):
                 save_loss_file = "loss_values_" + self.experiment_id
                 with open(save_loss_file, "wb") as writefile:
                     pickle.dump(loss_values, writefile)
+            epoch += 1
 
 
         # Calculate time to complete search process.

@@ -279,9 +279,13 @@ parser.add_argument("--save_metrics_param",
                     default="",
                     help="Path at which to save a file to tell tuning.py that this script is done running.")
 
+parser.add_argument("--resume_model_path",
+                    type=str,
+                    default=None,
+                    help="Path at which to save a file to tell script where to resume.")
+
 # Parse arguments.
 args = parser.parse_args()
-
 # Set seed.
 random.seed(args.seed)
 np.random.seed(args.seed)
@@ -348,7 +352,7 @@ def write_oom_exit(oom_error):
 try:
     host_device = torch.device(f"cuda:{args.host_gpu_id}" if torch.cuda.is_available() else "cpu")
     print(f"ATTEMPTING TO MOVE DLRM SUPERNET TO GPU {args.host_gpu_id if torch.cuda.is_available() else 'cpu'}.")
-    print(dlrm_supernet)
+    # print(dlrm_supernet)
     dlrm_supernet.to(host_device)
 except RuntimeError as oom_error:
     write_oom_exit(oom_error)
@@ -377,7 +381,7 @@ elif args.search_space == "emb_dim" or args.search_space == "emb_card":
 
 # Functions which specify how the LR changes during training. Note that
 # these functions return the RATIO of the current learning rate to the
-# initial learning rate, and not the current learning rate itself.
+# minitial learning rate, and not the current learning rate itself.
 weights_optim_lr_lambdas = [lambda curr_epoch: (args.weights_lr_base ** curr_epoch)]
 arch_params_optim_lr_lambdas = [lambda curr_epoch: (args.arch_params_lr_base ** curr_epoch)]
 
@@ -392,7 +396,7 @@ arch_params_initial_lrs = [args.arch_params_lr]
 # Note: instantiating the loss function here shouldn't cause any problems,
 # but in case it does, we can just pass the nn.BCELoss class and then
 # instantiate it in SearchManager.train_dnas().
-loss_function = nn.BCELoss()
+loss_function = nn.BCELoss(reduction="mean")
 
 # Create search_manager.
 search_manager = SearchManager(super_net=dlrm_supernet,
@@ -424,7 +428,8 @@ search_manager = SearchManager(super_net=dlrm_supernet,
                                 cost_exp=args.hw_cost_exp,
                                 cost_coef=args.hw_cost_coef,
                                 exponential_cost=(True if args.use_hw_cost and args.hw_cost_function == "exponential" else False),
-                                cost_multiplier=args.hw_cost_multiplier)
+                                cost_multiplier=args.hw_cost_multiplier,
+                                resume_model_path=args.resume_model_path)
 
 # Start search process.
 try:
