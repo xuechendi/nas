@@ -89,8 +89,10 @@ from torch.nn.parallel.scatter_gather import gather, scatter
 import extend_distributed as ext_dist
 
 try:
-    import intel_extension_for_pytorch as ipex
+    import intel_pytorch_extension as ipex
+    from intel_pytorch_extension import core
 except:
+    print("can't find intel_pytorch_extension")
     pass
 from lamb_bin import Lamb, log_lamb_rs
 
@@ -178,7 +180,10 @@ class DLRM_Net(nn.Module):
             m = ln[i + 1]
 
             # construct fully connected operator
-            LL = nn.Linear(int(n), int(m), bias=True)
+            if self.use_ipex and self.bf16:
+                LL = ipex.IpexMLPLinear(int(n), int(m), bias=True, output_stays_blocked=(i < ln.size - 2), default_blocking=32)
+            else:
+                LL = nn.Linear(int(n), int(m), bias=True)
 
             # initialize the weights
             # with torch.no_grad():
@@ -197,13 +202,25 @@ class DLRM_Net(nn.Module):
             # approach 3
             # LL.weight = Parameter(torch.tensor(W),requires_grad=True)
             # LL.bias = Parameter(torch.tensor(bt),requires_grad=True)
+
+            if self.bf16 and ipex.is_available():
+                LL.to(torch.bfloat16)
+            # prepack weight for IPEX Linear
+            if hasattr(LL, 'reset_weight_shape'):
+                LL.reset_weight_shape(block_for_dtype=torch.bfloat16)
+
             layers.append(LL)
 
             # construct sigmoid or relu operator
             if i == sigmoid_layer:
+                if self.bf16:
+                    layers.append(Cast(torch.float32))
                 layers.append(nn.Sigmoid())
             else:
-                layers.append(nn.ReLU())
+                if self.use_ipex and self.bf16:
+                    LL.set_activation_type('relu')
+                else:
+                    layers.append(nn.ReLU())
 
         # approach 1: use ModuleList
         # return layers
@@ -260,6 +277,8 @@ class DLRM_Net(nn.Module):
                 # EE.weight.data.copy_(torch.tensor(W))
                 # approach 3
                 # EE.weight = Parameter(torch.tensor(W),requires_grad=True)
+                if self.bf16 and ipex.is_available():
+                    EE.to(torch.bfloat16)
                
             if ext_dist.my_size > 1:
                 if n >= self.sparse_dense_boundary:
@@ -275,11 +294,11 @@ class DLRM_Net(nn.Module):
 
     def __init__(
         self,
-        m_spa=None,
-        ln_emb=None,
-        ln_bot=None,
-        ln_top=None,
-        arch_interaction_op=None,
+        m_spa=64,
+        ln_emb=[2, 59, 10132, 2203, 1, 24, 12517, 1, 1, 9315, 5683, 8352, 3194, 27, 14992, 5462, 10, 5652, 2173, 4, 7047, 18, 15, 2862, 105, 14258],
+        ln_bot=[13, 128, 64],
+        ln_top=[256, 128, 1],
+        arch_interaction_op='dot',
         arch_interaction_itself=False,
         sigmoid_bot=-1,
         sigmoid_top=-1,
@@ -293,9 +312,11 @@ class DLRM_Net(nn.Module):
         md_flag=False,
         md_threshold=200,
         bf16=False,
-        use_ipex=False,
+        use_ipex=True,
         sparse_dense_boundary = 2048
     ):
+        ln_emb=[2, 59, 10132, 2203, 1, 24, 12517, 1, 1, 9315, 5683, 8352, 3194, 27, 14992, 5462, 10, 5652, 2173, 4, 7047, 18, 15, 2862, 105, 14258]
+        ext_dist.init_distributed("ccl")
         super(DLRM_Net, self).__init__()
 
         if (
@@ -396,7 +417,7 @@ class DLRM_Net(nn.Module):
         if self.arch_interaction_op == "dot":
             if self.bf16:
                 T = [x] + ly
-                R = ipex.nn.functional.interaction(*T)
+                R = ipex.interaction(*T)
             else:
                 # concatenate dense and sparse features
                 (batch_size, d) = x.shape
@@ -431,6 +452,8 @@ class DLRM_Net(nn.Module):
         return R
 
     def forward(self, dense_x, lS_o, lS_i):
+        if self.bf16:
+            dense_x = dense_x.bfloat16()
         if ext_dist.my_size > 1:
             return self.distributed_forward(dense_x, lS_o, lS_i)
         elif self.ndevices <= 1:
@@ -620,29 +643,6 @@ class DLRM_Net(nn.Module):
         return z0
 
 
-def dash_separated_ints(value):
-    vals = value.split('-')
-    for val in vals:
-        try:
-            int(val)
-        except ValueError:
-            raise argparse.ArgumentTypeError(
-                "%s is not a valid dash separated list of ints" % value)
-
-    return value
-
-
-def dash_separated_floats(value):
-    vals = value.split('-')
-    for val in vals:
-        try:
-            float(val)
-        except ValueError:
-            raise argparse.ArgumentTypeError(
-                "%s is not a valid dash separated list of floats" % value)
-
-    return value
-
 if __name__ == "__main__":
     # the reference implementation doesn't clear the cache currently
     # but the submissions are required to do that
@@ -661,15 +661,11 @@ if __name__ == "__main__":
     )
     # model related parameters
     parser.add_argument("--arch-sparse-feature-size", type=int, default=2)
-    parser.add_argument(
-        "--arch-embedding-size", type=dash_separated_ints, default="4-3-2")
+    parser.add_argument("--arch-embedding-size", type=str, default="4-3-2")
     # j will be replaced with the table number
-    parser.add_argument(
-        "--arch-mlp-bot", type=dash_separated_ints, default="4-3-2")
-    parser.add_argument(
-        "--arch-mlp-top", type=dash_separated_ints, default="4-2-1")
-    parser.add_argument(
-        "--arch-interaction-op", type=str, choices=['dot', 'cat'], default="dot")
+    parser.add_argument("--arch-mlp-bot", type=str, default="4-3-2")
+    parser.add_argument("--arch-mlp-top", type=str, default="4-2-1")
+    parser.add_argument("--arch-interaction-op", type=str, default="dot")
     parser.add_argument("--arch-interaction-itself", action="store_true", default=False)
     # embedding table options
     parser.add_argument("--md-flag", action="store_true", default=False)
@@ -683,8 +679,7 @@ if __name__ == "__main__":
     # activations and loss
     parser.add_argument("--activation-function", type=str, default="relu")
     parser.add_argument("--loss-function", type=str, default="mse")  # or bce or wbce
-    parser.add_argument(
-        "--loss-weights", type=dash_separated_floats, default="1.0-1.0")  # for wbce
+    parser.add_argument("--loss-weights", type=str, default="1.0-1.0")  # for wbce
     parser.add_argument("--loss-threshold", type=float, default=0.0)  # 1.0e-7
     parser.add_argument("--round-targets", type=bool, default=False)
     # data
@@ -705,11 +700,6 @@ if __name__ == "__main__":
     parser.add_argument("--num-indices-per-lookup-fixed", type=bool, default=False)
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument("--memory-map", action="store_true", default=False)
-    parser.add_argument("--dataset-multiprocessing", action="store_true", default=False,
-                        help="The Kaggle dataset can be multiprocessed in an environment \
-                        with more than 7 CPU cores and more than 20 GB of memory. \n \
-                        The Terabyte dataset can be multiprocessed in an environment \
-                        with more than 24 CPU cores and at least 1 TB of memory.")
     # training
     parser.add_argument("--mini-batch-size", type=int, default=1)
     parser.add_argument("--nepochs", type=int, default=1)
@@ -803,6 +793,9 @@ if __name__ == "__main__":
             device = torch.device("cuda", 0)
             ngpus = torch.cuda.device_count()  # 1
         print("Using {} GPU(s)...".format(ngpus))
+    elif use_ipex:
+        device = torch.device("dpcpp")
+        print("Using IPEX...")
     else:
         device = torch.device("cpu")
         print("Using CPU...")
@@ -1002,6 +995,10 @@ if __name__ == "__main__":
             print(param.detach().cpu().numpy())
         # print(dlrm)
 
+    if args.use_ipex:
+       dlrm = dlrm.to(device)
+       print(dlrm, device, args.use_ipex)
+
     if use_gpu:
         # Custom Model-Data Parallel
         # the mlps are replicated and use data parallelism, while
@@ -1009,6 +1006,17 @@ if __name__ == "__main__":
         dlrm = dlrm.to(device)  # .cuda()
         if dlrm.ndevices > 1:
             dlrm.emb_l = dlrm.create_emb(m_spa, ln_emb)
+
+    if ext_dist.my_size > 1:
+        if use_gpu:
+            device_ids = [ext_dist.my_local_rank]
+            dlrm.bot_l = ext_dist.DDP(dlrm.bot_l, device_ids=device_ids)
+            dlrm.top_l = ext_dist.DDP(dlrm.top_l, device_ids=device_ids)
+        else:
+            dlrm.bot_l = ext_dist.DDP(dlrm.bot_l)
+            dlrm.top_l = ext_dist.DDP(dlrm.top_l)
+            for i in range(len(dlrm.emb_dense)):
+                dlrm.emb_dense[i] = ext_dist.DDP(dlrm.emb_dense[i])
 
     # specify the loss function
     if args.loss_function == "mse":
@@ -1023,40 +1031,26 @@ if __name__ == "__main__":
 
     if not args.inference_only:
         # specify the optimizer algorithm
-        optimizer_list = ([torch.optim.SGD, ([ipex.optim._lamb.Lamb, False], torch.optim.SGD),
+        optimizer_list = ([torch.optim.SGD, ([Lamb, False], torch.optim.SGD),
                            torch.optim.Adagrad, ([torch.optim.Adam, None], torch.optim.SparseAdam)],
-                          [torch.optim.SGD, ([ipex.optim._lamb.Lamb, True], torch.optim.SGD)])
-        optimizers = optimizer_list[args.bf16 and args.use_ipex][args.optimizer]
+                          [ipex.SplitSGD, ([Lamb, True], ipex.SplitSGD)])
+        optimizers = optimizer_list[args.bf16 and ipex.is_available()][args.optimizer]
         print('Chosen optimizer(s): %s' % str(optimizers))
 
         if ext_dist.my_size == 1:
             if len(optimizers) == 1:
                 optimizer = optimizers(dlrm.parameters(), lr=args.learning_rate)
-                if args.use_ipex:
-                    if args.bf16:
-                        dlrm, optimizer = ipex.optimize(dlrm, dtype=torch.bfloat16, optimizer=optimizer)
-                    else:
-                        dlrm, optimizer = ipex.optimize(dlrm, optimizer=optimizer)
             else:
-                optimizer_dense_bot_l = optimizers[0][0]([
+                optimizer_dense = optimizers[0][0]([
                     {"params": dlrm.bot_l.parameters(), "lr": args.learning_rate},
+                    {"params": dlrm.top_l.parameters(), "lr": args.learning_rate}
                 ], lr=args.learning_rate)
-                optimizer_dense_top_l = optimizers[0][0]([
-                    {"params": dlrm.top_l.parameters(), "lr": args.learning_rate},
-                ], lr=args.learning_rate)
+                if optimizers[0][1] is not None:
+                    optimizer_dense.set_bf16(optimizers[0][1])
                 optimizer_sparse = optimizers[1]([
                     {"params": [p for emb in dlrm.emb_l for p in emb.parameters()], "lr": args.learning_rate},
                 ], lr=args.learning_rate)
-                if args.use_ipex:
-                    if args.bf16:
-                        dlrm.bot_l, optimizer_dense_bot_l = ipex.optimize(dlrm.bot_l, dtype=torch.bfloat16, optimizer=optimizer_dense_bot_l)
-                        dlrm.top_l, optimizer_dense_top_l = ipex.optimize(dlrm.top_l, dtype=torch.bfloat16, optimizer=optimizer_dense_top_l)
-                        dlrm.emb_l, optimizer_sparse = ipex.optimize(dlrm.emb_l, dtype=torch.bfloat16, optimizer=optimizer_sparse)
-                    else:
-                        dlrm.bot_l, optimizer_dense_bot_l = ipex.optimize(dlrm.bot_l, optimizer=optimizer_dense_bot_l)
-                        dlrm.top_l, optimizer_dense_top_l = ipex.optimize(dlrm.top_l, optimizer=optimizer_dense_top_l)
-                        dlrm.emb_l, optimizer_sparse = ipex.optimize(dlrm.emb_l, optimizer=optimizer_sparse)
-                optimizer = (optimizer_dense_bot_l, optimizer_dense_top_l, optimizer_sparse)
+                optimizer = (optimizer_dense, optimizer_sparse)
         else:
             if len(optimizers) == 1:
                 optimizer = optimizers([
@@ -1066,58 +1060,20 @@ if __name__ == "__main__":
                     {"params": dlrm.bot_l.parameters(), "lr": args.learning_rate},
                     {"params": dlrm.top_l.parameters(), "lr": args.learning_rate}
                 ], lr=args.learning_rate)
-                if args.use_ipex:
-                    if args.bf16:
-                        dlrm, optimizer = ipex.optimize(dlrm, dtype=torch.bfloat16, optimizer=optimizer)
-                    else:
-                        dlrm, optimizer = ipex.optimize(dlrm, optimizer=optimizer)
             else:
-                optimizer_dense_emb = optimizers[0][0]([
+                optimizer_dense = optimizers[0][0]([
                     {"params": [p for emb in dlrm.emb_dense for p in emb.parameters()], "lr": args.lamblr},
-                ], lr=args.lamblr)
-                optimizer_dense_bot_l = optimizers[0][0]([
                     {"params": dlrm.bot_l.parameters(), "lr": args.lamblr},
-                ], lr=args.lamblr)
-                optimizer_dense_top_l = optimizers[0][0]([
-                    {"params": dlrm.top_l.parameters(), "lr": args.lamblr},
-                ], lr=args.lamblr)
+                    {"params": dlrm.top_l.parameters(), "lr": args.lamblr}
+                ], lr=args.lamblr, bf16=args.bf16)
                 optimizer_sparse = optimizers[1]([
                     {"params": [p for emb in dlrm.emb_sparse for p in emb.parameters()],
                      "lr": args.learning_rate / ext_dist.my_size},
                 ], lr=args.learning_rate)
-                if args.use_ipex:
-                    if args.bf16:
-                        dlrm.emb_dense, optimizer_dense_emb = ipex.optimize(dlrm.emb_dense, dtype=torch.bfloat16, optimizer=optimizer_dense_emb)
-                        dlrm.bot_l, optimizer_dense_bot_l = ipex.optimize(dlrm.bot_l, dtype=torch.bfloat16, optimizer=optimizer_dense_bot_l)
-                        dlrm.top_l, optimizer_dense_top_l = ipex.optimize(dlrm.top_l, dtype=torch.bfloat16, optimizer=optimizer_dense_top_l)
-                        dlrm.emb_sparse, optimizer_sparse = ipex.optimize(dlrm.emb_sparse, dtype=torch.bfloat16, optimizer=optimizer_sparse)
-                    else:
-                        dlrm.emb_dense, optimizer_dense_emb = ipex.optimize(dlrm.emb_dense, optimizer=optimizer_dense_emb)
-                        dlrm.bot_l, optimizer_dense_bot_l = ipex.optimize(dlrm.bot_l, optimizer=optimizer_dense_bot_l)
-                        dlrm.top_l, optimizer_dense_top_l = ipex.optimize(dlrm.top_l, optimizer=optimizer_dense_top_l)
-                        dlrm.emb_sparse, optimizer_sparse = ipex.optimize(dlrm.emb_sparse, optimizer=optimizer_sparse)
-                optimizer = (optimizer_dense_emb, optimizer_dense_bot_l, optimizer_dense_top_l, optimizer_sparse)
+                optimizer = (optimizer_dense, optimizer_sparse)
         lr_scheduler = LRPolicyScheduler(optimizer, args.lr_num_warmup_steps, args.lr_decay_start_step,
                                       args.lr_num_decay_steps)
-    print(dlrm, device, args.use_ipex)
-    # if args.use_ipex:
-    #     if args.bf16:
-    #         dlrm, optimizer = ipex.optimize(dlrm, dtype=torch.bfloat16, optimizer=optimizer)
-    #     else:
-    #         dlrm, optimizer = ipex.optimize(dlrm, optimizer=optimizer)
-    #     print(dlrm, device, args.use_ipex)
 
-    if ext_dist.my_size > 1:
-        if use_gpu:
-            device_ids = [ext_dist.my_local_rank]
-            dlrm.bot_l = ext_dist.DDP(dlrm.bot_l, device_ids=device_ids)
-            dlrm.top_l = ext_dist.DDP(dlrm.top_l, device_ids=device_ids)
-        else:
-            dlrm.bot_l = ext_dist.DDP(dlrm.bot_l)
-            dlrm.top_l = ext_dist.DDP(dlrm.top_l)
-            for i in range(len(dlrm.emb_dense)):
-                dlrm.emb_dense[i] = ext_dist.DDP(dlrm.emb_dense[i])
-    
     ### main loop ###
     def time_wrap(use_gpu):
         if use_gpu:
@@ -1125,7 +1081,7 @@ if __name__ == "__main__":
         return time.time()
 
     def dlrm_wrap(X, lS_o, lS_i, use_gpu, use_ipex, device):
-        if use_gpu:  # .cuda()
+        if use_gpu or use_ipex:  # .cuda()
             # lS_i can be either a list of tensors or a stacked tensor.
             # Handle each case below:
             lS_i = [S_i.to(device) for S_i in lS_i] if isinstance(lS_i, list) \
@@ -1138,16 +1094,11 @@ if __name__ == "__main__":
                 lS_i
             )
         else:
-            if args.bf16:
-                with torch.cpu.amp.autocast():
-                    output = dlrm(X, lS_o, lS_i)
-            else:
-                output = dlrm(X, lS_o, lS_i)
-            return output
+            return dlrm(X, lS_o, lS_i)
 
     def loss_fn_wrap(Z, T, use_gpu, use_ipex, device):
         if args.loss_function == "mse" or args.loss_function == "bce":
-            if use_gpu:
+            if use_gpu or use_ipex:
                 return loss_fn(Z, T.to(device))
             else:
                 return loss_fn(Z, T)
@@ -1157,7 +1108,7 @@ if __name__ == "__main__":
                 loss_fn_ = loss_fn(Z, T.to(device))
             else:
                 loss_ws_ = loss_ws[T.data.view(-1).long()].view_as(T)
-                loss_fn_ = loss_fn(Z, T)
+                loss_fn_ = loss_fn(Z, T.to(device))
             loss_sc_ = loss_ws_ * loss_fn_
             # debug prints
             # print(loss_ws_)
@@ -1265,7 +1216,7 @@ if __name__ == "__main__":
     # prof_end_iter = prof_start_iter + args.profiling_num_iters
     train_start = time.time()
     # with torch.autograd.profiler.profile(args.enable_profiling, use_gpu, record_shapes=record_shapes, **prof_arg_dict) as prof:
-    with torch.autograd.profiler.profile(args.enable_profiling) as prof:
+    with torch.autograd.profiler.profile(args.enable_profiling, use_gpu) as prof:
         while k < args.nepochs:
             mlperf_logger.barrier()
             mlperf_logger.log_start(key=mlperf_logger.constants.BLOCK_START,
@@ -1319,8 +1270,6 @@ if __name__ == "__main__":
 
                 # forward pass
                 Z = dlrm_wrap(X, lS_o, lS_i, use_gpu, use_ipex, device)
-                if args.bf16:
-                    Z = Z.to(torch.float32)
 
                 # loss
                 E = loss_fn_wrap(Z, T, use_gpu, use_ipex, device)
@@ -1341,8 +1290,8 @@ if __name__ == "__main__":
                     # scaled error gradient propagation
                     # (where we do not accumulate gradients across mini-batches)
                     if args.optimizer == 1 or args.optimizer == 3:
-                        for opt in optimizer:
-                            opt.zero_grad()
+                        optimizer_dense.zero_grad()
+                        optimizer_sparse.zero_grad()
                     else:
                         optimizer.zero_grad()
                     # backward pass
@@ -1354,8 +1303,8 @@ if __name__ == "__main__":
 
                     # optimizer
                     if args.optimizer == 1 or args.optimizer == 3:
-                        for opt in optimizer:
-                            opt.step()
+                        optimizer_dense.step()
+                        optimizer_sparse.step()
                     else:
                         optimizer.step()
                     lr_scheduler.step()
@@ -1433,8 +1382,6 @@ if __name__ == "__main__":
                         Z_test = dlrm_wrap(
                             X_test, lS_o_test, lS_i_test, use_gpu, use_ipex, device
                         )
-                        if args.bf16:
-                            Z_test = Z_test.to(torch.float32)
                         if args.mlperf_logging:
                             if ext_dist.my_size > 1:
                                 Z_test = ext_dist.all_gather(Z_test, None)
@@ -1464,47 +1411,52 @@ if __name__ == "__main__":
                         targets = np.concatenate(targets, axis=0)
 
                         validation_results = {}
-                        metrics = {
-                            'loss' : sklearn.metrics.log_loss,
-                            'recall' : lambda y_true, y_score:
-                            sklearn.metrics.recall_score(
-                                y_true=y_true,
-                                y_pred=np.round(y_score)
-                            ),
-                            'precision' : lambda y_true, y_score:
-                            sklearn.metrics.precision_score(
-                                y_true=y_true,
-                                y_pred=np.round(y_score)
-                            ),
-                            'f1' : lambda y_true, y_score:
-                            sklearn.metrics.f1_score(
-                                y_true=y_true,
-                                y_pred=np.round(y_score)
-                            ),
-                            'ap' : sklearn.metrics.average_precision_score,
-                            'roc_auc' : sklearn.metrics.roc_auc_score,
-                            'accuracy' : lambda y_true, y_score:
-                            sklearn.metrics.accuracy_score(
-                                y_true=y_true,
-                                y_pred=np.round(y_score)
-                            ),
-                        }
-                        # print("Compute time for validation metric : ", end="")
-                        # first_it = True
-                        for metric_name, metric_function in metrics.items():
-                            # if first_it:
-                            #     first_it = False
-                            # else:
-                            #     print(", ", end="")
-                            # metric_compute_start = time_wrap(False)
-                            validation_results[metric_name] = metric_function(
-                                targets,
-                                scores
-                            )
-                            # metric_compute_end = time_wrap(False)
-                            # met_time = metric_compute_end - metric_compute_start
-                            # print("{} {:.4f}".format(metric_name, 1000 * (met_time)),
-                            #      end="")
+                        if args.use_ipex:
+                            validation_results['roc_auc'], validation_results['loss'], validation_results['accuracy'] = \
+                                core.roc_auc_score(torch.from_numpy(targets).reshape(-1), torch.from_numpy(scores).reshape(-1))
+                        else:
+                            metrics = {
+                                'loss' : sklearn.metrics.log_loss,
+                                'recall' : lambda y_true, y_score:
+                                sklearn.metrics.recall_score(
+                                    y_true=y_true,
+                                    y_pred=np.round(y_score)
+                                ),
+                                'precision' : lambda y_true, y_score:
+                                sklearn.metrics.precision_score(
+                                    y_true=y_true,
+                                    y_pred=np.round(y_score)
+                                ),
+                                'f1' : lambda y_true, y_score:
+                                sklearn.metrics.f1_score(
+                                    y_true=y_true,
+                                    y_pred=np.round(y_score)
+                                ),
+                                'ap' : sklearn.metrics.average_precision_score,
+                                'roc_auc' : sklearn.metrics.roc_auc_score,
+                                'accuracy' : lambda y_true, y_score:
+                                sklearn.metrics.accuracy_score(
+                                    y_true=y_true,
+                                    y_pred=np.round(y_score)
+                                ),
+                            }
+
+                            # print("Compute time for validation metric : ", end="")
+                            # first_it = True
+                            for metric_name, metric_function in metrics.items():
+                                # if first_it:
+                                #     first_it = False
+                                # else:
+                                #     print(", ", end="")
+                                # metric_compute_start = time_wrap(False)
+                                validation_results[metric_name] = metric_function(
+                                    targets,
+                                    scores
+                                )
+                                # metric_compute_end = time_wrap(False)
+                                # met_time = metric_compute_end - metric_compute_start
+                                # print("{} {:.4f}".format(metric_name, 1000 * (met_time)),
+                                #      end="")
 
                         # print(" ms")
                         gA_test = validation_results['accuracy']

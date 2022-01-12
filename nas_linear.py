@@ -10,6 +10,11 @@
 import torch
 import torch.nn as nn
 import numpy as np
+try:
+    import intel_pytorch_extension as ipex
+except:
+    pass
+from lamb_bin import Lamb, log_lamb_rs
 
 
 class LinearDLRM(nn.Module):
@@ -23,7 +28,9 @@ class LinearDLRM(nn.Module):
     def __init__(self,
                 in_feat,
                 out_feat,
-                bias=False):
+                bias=False,
+                output_stays_blocked=False, 
+                use_bf16=False):
 
         # Superclass initialization.
         super(LinearDLRM, self).__init__()
@@ -34,9 +41,10 @@ class LinearDLRM(nn.Module):
         self.bias = bias
 
         # Create the layer.
+        #self.linear_layer = ipex.IpexMLPLinear(int(self.in_feat), int(self.out_feat), bias=self.bias, output_stays_blocked=output_stays_blocked, default_blocking=32)
         self.linear_layer = nn.Linear(self.in_feat,
-                                        self.out_feat,
-                                        bias=self.bias)
+                                       self.out_feat,
+                                       bias=self.bias)
 
         # Change initialization to match DLRM code
         # from dlrm_s_pytorch.py.
@@ -59,6 +67,12 @@ class LinearDLRM(nn.Module):
 
             if self.bias is True:
                 self.linear_layer.bias.data = torch.tensor(bt, requires_grad=True)
+
+        if use_bf16:
+            self.linear_layer.to(torch.bfloat16)
+            # prepack weight for IPEX Linear
+            if hasattr(self.linear_layer, 'reset_weight_shape'):
+                self.linear_layer.reset_weight_shape(block_for_dtype=torch.bfloat16)
 
     def forward(self, input_vectors):
         """

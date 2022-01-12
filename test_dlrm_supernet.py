@@ -138,7 +138,7 @@ def run_super_net_fwd_on_gpu(gpu_id):
     """
 
     # Create the GPU device.
-    gpu_device = torch.device(f"cuda:{gpu_id}" if torch.cuda.is_available() else "cpu")
+    gpu_device = torch.device(f"cuda:{gpu_id}" if torch.cuda.is_available() else "dpcpp")
 
     # Create the super net.
     s_net = create_test_super_net()

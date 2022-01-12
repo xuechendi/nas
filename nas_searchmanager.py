@@ -16,6 +16,7 @@
 # Bichen Wu's FBNet code.
 
 # Various import statements.
+import sys
 import torch
 import torch.nn as nn
 import numpy as np
@@ -25,7 +26,35 @@ import time
 import os
 from torch.nn.utils import clip_grad_norm_ as clip_grad
 from utils import Timer
+try:
+    import intel_pytorch_extension as ipex
+    from intel_pytorch_extension import core
+except:
+    print("can't find intel_pytorch_extension")
+    pass
+from dlrm import dlrm_data_pytorch as dp
 
+class DLRMAdvisorArgs:
+    def __init__(self):
+        DATA_PATH = "/home/vmagent/app/dataset/criteo/"
+        self.data_set = "terabyte"
+        self.data_sub_sample_rate = 0.0
+        self.data_randomize = "total"
+        self.dataset_multiprocessing = False
+        self.day_feature_count = f"{DATA_PATH}/day_fea_count.npz"
+        self.eval_data_path = f"{DATA_PATH}/valid/test_data.bin"
+        self.max_ind_range = -1
+        self.memory_map = True
+        self.mini_batch_size = 262144
+        self.mlperf_bin_loader = True
+        self.mlperf_bin_shuffle = True
+        self.mlperf_logging = True
+        self.num_workers = 0
+        self.raw_data_file = f"{DATA_PATH}/day"
+        self.processed_data_file = f"{DATA_PATH}/terabyte_processed.npz"
+        self.train_data_path = f"{DATA_PATH}/train/train_data.bin"
+        self.test_mini_batch_size = 131072
+        self.test_num_workers = 0
 
 class SearchManager(object):
     def __init__(self,
@@ -74,6 +103,10 @@ class SearchManager(object):
 
         # Read various parameters from parameters and store for use later.
         self.super_net = super_net
+        self.best_auc_test = 0.5
+        args = DLRMAdvisorArgs()
+        train_data, train_ld, test_data, self.test_ld = dp.make_criteo_data_and_loaders(args)
+        self.nbatches_test = len(self.test_ld)
 
         self.init_temp = init_temp
         self.temp_decay_rate = temp_decay_rate
@@ -234,6 +267,39 @@ class SearchManager(object):
                 lS_i, \
                 T.to(device)
 
+    def run_test(self, test_ld, nbatches, curr_temp):
+        scores = []
+        targets = []
+        test_elapse = 0
+        for i, (X_test, lS_o_test, lS_i_test, T_test) in enumerate(test_ld):
+            # early exit if nbatches was set by the user and was exceeded
+            if nbatches > 0 and i >= nbatches:
+                break
+
+            t1_test = time.time()
+
+            # forward pass
+            dense_features, sparse_offsets, sparse_indices, labels = self.move_data_to_gpu(X_test, lS_o_test, lS_i_test, T_test, self.host_device)
+            super_net_outputs = self.super_net(dense_features,
+                                sparse_offsets,
+                                sparse_indices,
+                                sampling="soft",
+                                temperature=curr_temp)
+            if self.use_hw_cost is False:
+                model_predictions = super_net_outputs
+
+            elif self.use_hw_cost is True:
+                model_predictions, model_cost = super_net_outputs
+
+            S_test = model_predictions.detach().cpu().numpy()  # numpy array
+            T_test = T_test.detach().cpu().numpy()  # numpy array
+            scores.append(S_test)
+            targets.append(T_test)
+
+            t2_test = time.time()
+            test_elapse += (t2_test - t1_test)
+        return scores, targets, test_elapse
+
     def run_one_dnas_step(self, current_epoch, batch_idx, curr_temp, X, lS_o, lS_i, T,
             weights_optimizer, mask_optimizer):
         # Move the data and target
@@ -283,6 +349,29 @@ class SearchManager(object):
 
         elif current_epoch["what_to_train"] == "mask":
             mask_optimizer.step()
+
+        should_test = (batch_idx % 800 == 0) and (batch_idx != 0)
+        if should_test:
+            nbatches = self.nbatches_test
+            scores, targets, test_elapse = self.run_test(self.test_ld, nbatches, curr_temp)
+            scores = np.concatenate(scores, axis=0)
+            targets = np.concatenate(targets, axis=0)
+            validation_results = {}
+            validation_results['roc_auc'], validation_results['loss'], validation_results['accuracy'] = \
+                                core.roc_auc_score(torch.from_numpy(targets).reshape(-1), torch.from_numpy(scores).reshape(-1))
+            if self.best_auc_test < validation_results['roc_auc']:
+                self.best_auc_test = validation_results['roc_auc']
+            print(
+                            "Testing at - {},".format(batch_idx)
+                            + " loss {:.6f},".format(
+                                validation_results['loss']
+                            )
+                            + " auc {:.4f}, best auc {:.4f},".format(
+                                validation_results['roc_auc'],
+                                self.best_auc_test
+                            )
+                            + " test took {:.4f} s".format(test_elapse)
+                        )
 
         # Return the loss value.
         return float(loss.item())
@@ -450,7 +539,10 @@ class SearchManager(object):
                 steps_trained = 0
 
                 # Training loop.
+                print(f"current dataloader is {current_dataloader.dataset.__dict__}")
                 for batch_idx, (X, lS_o, lS_i, T) in enumerate(current_dataloader):
+                    if batch_idx % 800 == 0 and batch_idx != 0:
+                        print(f"completed {batch_idx} iterations")
                     # Check if we need to skip this
                     # training step; if so, skip it.
                     if batch_idx < steps_to_skip:
@@ -458,12 +550,19 @@ class SearchManager(object):
 
                     # If this is the last batch with incorrec batch size, skip.
                     if list(T.size())[0] != current_dataloader.batch_size:
+                        print(f"T.size() is {T.size()}")
                         continue
 
                     # Run one training step.
-                    curr_loss_value = self.run_one_dnas_step(current_epoch, batch_idx,
-                        curr_temp, X, lS_o, lS_i, T, weights_optimizer, mask_optimizer)
-                    loss_values.append(curr_loss_value)
+                    try:
+                        curr_loss_value = self.run_one_dnas_step(current_epoch, batch_idx,
+                            curr_temp, X, lS_o, lS_i, T, weights_optimizer, mask_optimizer)
+
+                        loss_values.append(curr_loss_value)
+                    except Exception as e:
+                        import traceback
+                        traceback.print_exc()
+                        sys.exit(1)
 
                     # Increment the trained steps counter.
                     steps_trained += 1
@@ -497,6 +596,7 @@ class SearchManager(object):
                     # Check if we are done training; if so, exit the loop.
                     if steps_trained >= steps_to_train:
                         break
+                print(f"Total trained num_batch is {steps_trained}")
 
                 # Sample architectures.
                 arch_fnames = self.sample_archs(current_epoch)

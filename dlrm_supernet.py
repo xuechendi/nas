@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from dlrm_s_pytorch import DLRM_Net
+from dlrm.dlrm_s_pytorch import DLRM_Net
 from nas_supernet import SuperNet
 from nas_mlp import SuperNetMLP
 from nas_embedding_dim import EmbeddingDimSuperNet
@@ -178,7 +178,8 @@ class DLRMSuperNet(DLRM_Net, SuperNet):
                                     relu_last_layer=True,
                                     bias=True,
                                     last_layer_bias=True,
-                                    last_layer_activation=F.relu)
+                                    last_layer_activation=F.relu,
+                                    use_bf16=self.bf16)
 
             # Replace the top MLP.
             self.top_l = SuperNetMLP(input_dim=self.top_mlp_input_dim,
@@ -190,7 +191,8 @@ class DLRMSuperNet(DLRM_Net, SuperNet):
                                     relu_last_layer=True,
                                     bias=True,
                                     last_layer_bias=True,
-                                    last_layer_activation=torch.sigmoid)
+                                    last_layer_activation=torch.sigmoid,
+                                    use_bf16=self.bf16)
 
             # Set the theta parameters, mask values, and the number of mask values.
 
