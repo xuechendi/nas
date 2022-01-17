@@ -24,6 +24,13 @@ import time
 import os
 from sklearn.metrics import roc_auc_score
 
+def get_auc(scores, targets):
+    scores = np.concatenate(scores, axis=0)
+    targets = np.concatenate(targets, axis=0)
+    
+    auc = roc_auc_score(targets, scores)
+    return auc
+
 # Utility function.
 # Very slightly modified from dlrm_s_pytorch.py.
 def move_data_to_gpu(X, lS_o, lS_i, T, device):
@@ -53,6 +60,9 @@ def evaluate(dlrm, evaluation_dataloader):
     # CPU and CUDA RNG states before evaluation and load them
     # back after evaluation.
     original_cpu_rng_state = torch.get_rng_state()
+    scores = []
+    targets = []
+
     enable_gpu = torch.cuda.is_available()
     if enable_gpu:
         original_gpu_rng_state = torch.cuda.get_rng_state()
@@ -69,6 +79,7 @@ def evaluate(dlrm, evaluation_dataloader):
     predictions_sum = 0.0
     labels_sum = 0.0
 
+    time_1 = time.time()
     for iter, (X, lS_o, lS_i, T) in enumerate(evaluation_dataloader):
         # Move data to GPU.
         dense_features, sparse_offsets, sparse_indices, labels = \
@@ -76,7 +87,9 @@ def evaluate(dlrm, evaluation_dataloader):
 
         # Forward pass.
         click_probabilities = dlrm(dense_features, sparse_offsets, sparse_indices)
-
+        scores.append(click_probabilities.detach().cpu().numpy())
+        targets.append(labels)
+        
         # Calcuate loss.
         loss = loss_function(click_probabilities, labels)
 
@@ -98,6 +111,9 @@ def evaluate(dlrm, evaluation_dataloader):
     if enable_gpu:
         torch.cuda.set_rng_state(original_gpu_rng_state)
 
+    test_time = time.time() - time_1
+    auc = get_auc(scores, targets)
+    print(f"Validate total num_iterations is {iter}, took {test_time} s, auc is {auc}, loss is {dataset_loss}, calibration is {dataset_calibration}")
     # Return results.
     return {"loss" : dataset_loss, "calibration" : dataset_calibration}
 
@@ -281,7 +297,7 @@ if args.checkpoint != "":
     saved_state_dictionary = torch.load(args.checkpoint, map_location="cpu")
 
     # Set model state dictionary.
-    loading_result = dlrm.load_state_dict(saved_state_dictionary)
+    loading_result = dlrm.load_state_dict(saved_state_dictionary["saved_arch_state_dict"])
 
     # Print information.
     print(f"LOADED STATE DICTIONARY FROM CHECKPOINT {args.checkpoint}.")
@@ -299,13 +315,6 @@ while not dataloaders_loaded:
         dataloaders_loaded = True
     except Exception:
         continue
-
-def get_auc(scores, targets):
-    scores = np.concatenate(scores, axis=0)
-    targets = np.concatenate(targets, axis=0)
-    
-    auc = roc_auc_score(targets, scores)
-    return auc
 
 # Function to deal with OOM errors.
 def write_oom_exit(oom_error):
@@ -379,7 +388,13 @@ while start_epochs < args.n_epochs:
 curr_eval_ix = 0
 
 # Main DLRM training loop, based heavily on code in dlrm_s_pytorch.py.
+train_start = time.time()
+train_elapse_total = 0
+last_print_time = 0
+early_stop = True
 for epoch in range(n_inner_loops):
+    if early_stop:
+        break
     # If this is the last epoch, then we may need to complete only part of it
     # if args.n_epochs is fractional.
     last_epoch = (epoch == n_inner_loops - 1)
@@ -449,8 +464,16 @@ for epoch in range(n_inner_loops):
 
             if should_test:
                 auc = get_auc(scores, targets)
-                print(f"Iteration {iter} took {train_elapse - last_print_elapse} s, {(train_elapse - last_print_elapse)*1000/800} ms/iter, loss = {np.mean(losses)}, auc from train = {auc}")
+                print(f"Iteration {iter} took {train_elapse - last_print_elapse} s, {(train_elapse - last_print_elapse)*1000/800} ms/iter, loss = {np.mean(losses)}, auc from train is {auc}")
                 last_print_elapse = train_elapse
+                try:
+                    res = evaluate(dlrm, val_dataloader)
+                    val_loss = res["loss"]
+                    if float(val_loss) < 0.447:
+                        early_stop = True
+                        break
+                except RuntimeError:
+                    pass
                 scores = []
                 targets = []
                 losses = []
@@ -482,6 +505,9 @@ for epoch in range(n_inner_loops):
         train_elapse += (time.time() - time_1)
     # Add curr_epoch_loss to overall loss list.
     loss_over_time.append(curr_epoch_loss)
+train_elapse_total += (time.time() - train_start)
+print(f"Train for one epoch took {train_elapse_total -  last_print_time}, till total train took {train_elapse_total}")
+last_print_time = train_elapse_total
 
 if args.n_epochs != 0.00:
     # Get validation performance of model now that training is complete.
@@ -535,3 +561,5 @@ else:
 # that the script is done running, save a file at the save_metrics_param
 # location.
 torch.save(sampled_arch_results, args.save_metrics_param, _use_new_zipfile_serialization=False)
+if early_stop:
+    sys.exit(0)
