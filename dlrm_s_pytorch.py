@@ -87,6 +87,7 @@ from tricks.md_embedding_bag import PrEmbeddingBag, md_solver
 
 import sklearn.metrics
 import torch.nn.functional as F
+import extend_distributed as ext_dist
 
 # from torchviz import make_dot
 # import torch.nn.functional as Functional
@@ -238,7 +239,7 @@ class DLRM_Net(nn.Module):
         max_emb_dim=0,
     ):
         #ln_emb=[2, 59, 10132, 2203, 1, 24, 12517, 1, 1, 9315, 5683, 8352, 3194, 27, 14992, 5462, 10, 5652, 2173, 4, 7047, 18, 15, 2862, 105, 14258]
-        
+
         super(DLRM_Net, self).__init__()
 
         if (
@@ -352,9 +353,14 @@ class DLRM_Net(nn.Module):
         return R
 
     def forward(self, dense_x, lS_o, lS_i):
+        if ext_dist.my_size > 1:
+            print("distributed_forward")
+            return self.distributed_forward(dense_x, lS_o, lS_i)
         if self.ndevices <= 1:
+            print("sequential_forward")
             return self.sequential_forward(dense_x, lS_o, lS_i)
         else:
+            print("parallel_forward")
             return self.parallel_forward(dense_x, lS_o, lS_i)
 
     def sequential_forward(self, dense_x, lS_o, lS_i):
@@ -492,6 +498,54 @@ class DLRM_Net(nn.Module):
 
         return z0
 
+    def distributed_forward(self, dense_x, lS_o, lS_i):
+        batch_size = dense_x.size()[0]
+        # WARNING: # of ranks must be <= batch size in distributed_forward call
+        if batch_size < ext_dist.my_size:
+            sys.exit("ERROR: batch_size (%d) must be larger than number of ranks (%d)" % (batch_size, ext_dist.my_size))
+
+        lS_o_dense = [lS_o[i]  for i in self.ln_emb_dense]
+        lS_i_dense = [lS_i[i] for i in self.ln_emb_dense]
+        lS_o_sparse = [lS_o[i] for i in self.ln_emb_sparse]  # partition sparse table in one group
+        lS_i_sparse = [lS_i[i] for i in self.ln_emb_sparse]
+
+        lS_i_sparse = ext_dist.shuffle_data(lS_i_sparse)
+        g_i_sparse = [lS_i_sparse[:, i * batch_size:(i + 1) * batch_size].reshape(-1) for i in range(len(self.local_ln_emb_sparse))]
+        offset = torch.arange(batch_size * ext_dist.my_size).to(device)
+        g_o_sparse = [offset for i in range(self.n_local_emb_sparse)]
+
+        if (len(self.local_ln_emb_sparse) != len(g_o_sparse)) or (len(self.local_ln_emb_sparse) != len(g_i_sparse)):
+           sys.exit("ERROR 0 : corrupted model input detected in distributed_forward call")
+        # sparse embeddings
+        ly_sparse = self.apply_emb(g_o_sparse, g_i_sparse, self.emb_sparse)
+        a2a_req = ext_dist.alltoall(ly_sparse, self.n_sparse_emb_per_rank)
+        # bottom mlp
+        x = self.apply_mlp(dense_x, self.bot_l)
+        # dense embeddings
+        ly_dense = self.apply_emb(lS_o_dense, lS_i_dense, self.emb_dense)
+        ly_sparse = a2a_req.wait()
+        ly_sparse2 = []
+        #print(f"len(ly_sparse) is {len(ly_sparse)}")
+        for i in range(len(ly_sparse)):
+            ly_sparse2.append(ly_sparse[i].repeat(1,4))
+        del ly_sparse
+        #ly_sparse ""= torch.cat(ly_sparse,1)
+        ly = ly_dense + list(ly_sparse2)
+        #ly = ly_dense + list(ly_sparse)
+        # interactions
+        z = self.interact_features(x, ly)
+        # top mlp
+        p = self.apply_mlp(z, self.top_l)
+        # clamp output if needed
+        if 0.0 < self.loss_threshold and self.loss_threshold < 1.0:
+            z = torch.clamp(
+                p, min=self.loss_threshold, max=(1.0 - self.loss_threshold)
+            )
+        else:
+            z = p
+
+        return z
+     
 
 def dash_separated_ints(value):
     vals = value.split('-')

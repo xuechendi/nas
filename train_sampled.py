@@ -23,6 +23,8 @@ from utils import step_lambda_lr
 import time
 import os
 from sklearn.metrics import roc_auc_score
+import extend_distributed as ext_dist
+
 
 def get_auc(scores, targets):
     scores = np.concatenate(scores, axis=0)
@@ -281,6 +283,8 @@ torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 torch.cuda.manual_seed_all(args.seed)
 
+ext_dist.init_distributed(backend='ccl')
+
 # Replace argument for emb_card search space. This is probably not necessary.
 if args.feature_counts_file:
     args.embeddings_num_vectors = np.load(args.feature_counts_file)["counts"]
@@ -307,6 +311,8 @@ if args.checkpoint != "":
         print(f"WARNING: MISSING OR UNEXPECTED KEYS IN LOADED STATE DICTIONARY, EXITING. MISSING KEYS = {loading_result.missing_keys}. UNEXPECTED KEYS = {loading_result.unexpected_keys}.")
         exit()
 
+#dlrm = torch.nn.parallel.DistributedDataParallel(dlrm, ...)
+dlrm = ext_dist.DDP(dlrm)
 # Get dataloaders.
 dataloaders_loaded = False
 while not dataloaders_loaded:
